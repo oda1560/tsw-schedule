@@ -37,6 +37,7 @@ class PlannedTrain:
     follows: "PlannedTrain" = None
     spawn_at: str = None        # start-of-day position (marker) when the unit starts the day on the route
     dropped: str = None         # why it couldn't be placed, if so
+    last_side: str = None       # leading end of the unit at the end of this train (for a turnaround after it)
     # filled by the generator
     service_names: list = field(default_factory=list)
     end_formation: str = None
@@ -107,6 +108,27 @@ def text_source(t):
     return out
 
 
+FRONT, BACK = "ESide::Front", "ESide::Back"
+
+
+def leading_side(service):
+    """Which end of the unit's vehicle list leads (and is driven from) in this service. A unit's vehicle list
+    never changes through its day; services say which end leads, so it flips each time the train reverses."""
+    return str(service.get("PlayerDrivableSide", FRONT))
+
+
+def other_side(side):
+    return BACK if side == FRONT else FRONT
+
+
+def set_enum(struct, name, enum_type, value):
+    p = struct.prop(name)
+    if p is None:
+        p = Prop(FName(name), FName("EnumProperty"), enum_name=FName(enum_type))
+        struct.props.append(p)
+    p.value = FName(value)
+
+
 def suffix_of(service_name, headcode):
     """'1U00_AI_2' -> '_AI_2'; descriptive tails ('5W10 0616 Crewe CS to Crewe') are dropped."""
     rest = service_name[len(headcode):]
@@ -130,11 +152,13 @@ class Generator:
             if str(f["FormationType"]).endswith("Initial") and f.get("TrainEntry") is not None:
                 self.donors.setdefault(str(f["TrainEntry"].path), f)
         self.spawn_points = {}  # start marker -> Initial formation of a unit that starts the day there
+        self.spawn_sides = {}   # start marker -> leading side of the route's own first train from there
         for run in timetable.runs:
             head = timetable.formations.get(str(run.services[0]["FormationName"]))
             if (run.start_kind == "location" and head is not None and str(head["FormationType"]).endswith("Initial")
-                    and not head.get("bSpawnInVault", False)):
-                self.spawn_points.setdefault(run.start_marker, head)
+                    and not head.get("bSpawnInVault", False) and run.start_marker not in self.spawn_points):
+                self.spawn_points[run.start_marker] = head
+                self.spawn_sides[run.start_marker] = leading_side(run.services[0])
 
     # -- stock ---------------------------------------------------------------------------------------------------
     def stock_plugins(self, train_entry):
@@ -220,11 +244,32 @@ class Generator:
                 start_formation = f"{new_names[0]}_Start"
                 formations.append(self.initial_formation(p, start_formation))
 
+            # Which end of our unit leads. The template's sides suit its own unit's vehicle order; ours may be the
+            # other way round, so flip them all when needed: a turnaround leaves with the end that arrived last;
+            # a unit placed at the start of the day leads like the route's own first train from that spot; one
+            # from the vault leads as the template says. Wrong sides put the driver in a cab in the middle.
+            first_side = leading_side(run.services[0])
+            if p.follows is not None and p.follows.last_side is not None:
+                wanted = other_side(p.follows.last_side)
+            elif p.spawn_at is not None:
+                wanted = self.spawn_sides.get(p.spawn_at, first_side)
+            else:
+                wanted = first_side
+            flip = wanted != first_side
+            p.flipped = flip
+
             previous_end = start_formation
             for i, (s, name) in enumerate(zip(run.services, new_names)):
                 svc = copy.deepcopy(s)
                 shift_times(svc, delta)
                 set_prop(svc, "Name", FName(name), "NameProperty")
+                side = leading_side(s)
+                if flip:
+                    side = other_side(side)
+                    set_enum(svc, "PlayerDrivableSide", "ESide", side)
+                    if svc.get("EOTDSide") is not None:
+                        set_enum(svc, "EOTDSide", "ESide", other_side(str(svc["EOTDSide"])))
+                p.last_side = side
                 set_prop(svc, "FormationName", FName(previous_end), "NameProperty")
                 end_name = f"{name}_End"
                 set_prop(svc, "EndOfServiceFormationName", FName(end_name), "NameProperty")
