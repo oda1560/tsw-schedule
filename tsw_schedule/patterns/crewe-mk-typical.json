@@ -36,7 +36,7 @@
     {"id": "awc-bham-down-mk", "operator": "Avanti West Coast", "name": "London Euston to Wolverhampton",
      "path": {"from": "Portal - Bletchley Down Fast", "stops": ["Milton Keynes", "Rugby"], "to": "Portal - To Coventry"},
      "stock": ["390", "807"], "headcode": "9G", "first": 40,
-     "times": {"from": "07:18", "to": "21:18", "every": 60}, "drivable": true},
+     "times": {"from": "07:21", "to": "21:21", "every": 60}, "drivable": true},
     {"id": "awc-bham-up", "operator": "Avanti West Coast", "name": "Birmingham New Street to London Euston",
      "path": {"from": "Portal - From Coventry", "stops": [], "to": "Portal - Bletchley Up Fast"},
      "stock": ["390", "807"], "headcode": "1B", "first": 10,
@@ -208,7 +208,7 @@
     {"id": "xc-sw-ne-tam", "operator": "CrossCountry", "name": "Plymouth / Bristol to Edinburgh / York",
      "path": {"from": "Portal - From Wilnecote", "stops": ["Tamworth"], "to": "Portal - To Burton-on-Trent"},
      "stock": ["220", "170-4"], "headcode": "1S", "first": 60,
-     "times": {"from": "07:35", "to": "20:35", "every": 60}, "drivable": true},
+     "times": {"from": "07:45", "to": "20:45", "every": 60}, "drivable": true},
 
     {"id": "nt-man-crewe", "operator": "Northern", "name": "Manchester Piccadilly to Crewe",
      "path": {"from": "Portal - From Manchester Up Fast", "stops": ["Crewe"], "to": "Crewe"},
@@ -284,7 +284,7 @@
     {"id": "drs-nn-up", "operator": "DRS", "name": "Coatbridge / Daventry to Tilbury (intermodal)",
      "path": {"from": "Portal - From Northampton", "stops": [], "to": "Portal - Bletchley Up Slow"},
      "stock": ["66-DRS-FKA", "66-FKA"], "headcode": "4L", "first": 48,
-     "times": ["08:03", "14:03", "18:10"], "drivable": true},
+     "times": ["08:03", "14:03", "18:20"], "drivable": true},
     {"id": "db-oil-down", "operator": "DB Cargo", "name": "Kingsbury to Lindsey (oil)",
      "path": {"from": "Portal - From Wilnecote", "stops": [], "to": "Portal - To Burton-on-Trent"},
      "stock": ["66-TEA"], "headcode": "6E", "first": 46,
@@ -292,6 +292,6 @@
     {"id": "db-oil-up", "operator": "DB Cargo", "name": "Lindsey to Kingsbury (oil)",
      "path": {"from": "Portal - From Burton-on-Trent", "stops": [], "to": "Portal - To Wilnecote"},
      "stock": ["66-TEA"], "headcode": "6M", "first": 0,
-     "times": ["05:45", "13:10", "19:15"], "drivable": true}
+     "times": ["05:45", "13:10", "19:22"], "drivable": true}
   ]
 }

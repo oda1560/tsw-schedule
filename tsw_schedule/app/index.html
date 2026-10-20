@@ -54,6 +54,10 @@
     padding: 10px; max-height: 220px; overflow: auto; white-space: pre-wrap; }
   .notes { color: var(--muted); max-width: 900px; }
   .problems li { color: var(--bad); }
+  .problems li.warnline { color: var(--warn); }
+  #mods { padding-left: 18px; }
+  #mods li.mod { margin: 6px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button.small { padding: 3px 10px; font-size: 12px; }
   @media (max-width: 640px) {
     header, main { padding-left: 16px; padding-right: 16px; }
     select, input[type=search] { min-width: 0; width: 100%; }
@@ -165,9 +169,12 @@ function render() {
   const drivable = kept.filter(r => r.drivable).length;
   $("stats").innerHTML = [
     ["Trains", kept.length], ["Drivable", drivable], ["Turn round on the route", turns],
-    ["Stock swapped", swapped], ["Dropped", rows.length - kept.length], ["Operators", Object.keys(data.operators).length],
+    ["Stock swapped", swapped], ["Dropped", rows.length - kept.length], ["Close entries", data.close.length],
+    ["Operators", Object.keys(data.operators).length],
   ].map(([k, v]) => `<div class="stat"><span class="muted">${k}</span><b>${v}</b></div>`).join("");
-  $("problems").innerHTML = data.problems.map(p => `<li>${esc(p.pattern)}: ${esc(p.message)}</li>`).join("");
+  $("problems").innerHTML = data.problems.map(p => `<li>${esc(p.pattern)}: ${esc(p.message)}</li>`).join("")
+    + data.close.slice(0, 8).map(c => `<li class="warnline">Within 3 min at ${esc(c)}</li>`).join("")
+    + (data.close.length > 8 ? `<li class="warnline">… and ${data.close.length - 8} more close entries</li>` : "");
   $("operators").innerHTML = Object.entries(data.operators).sort((a, b) => b[1].trains - a[1].trains)
     .map(([op, s]) => `<span class="chip ${opFilter.has(op) ? "on" : ""}" data-op="${esc(op)}">${esc(op)}<span class="n">${s.trains}</span></span>`).join("");
   document.querySelectorAll("#operators .chip").forEach(c => c.onclick = () => {
@@ -218,8 +225,19 @@ async function poll() {
 async function loadMods() {
   const m = await api("/api/mods");
   $("modFolder").textContent = m.folder;
-  $("mods").innerHTML = m.mods.length ? m.mods.map(x => `<li>${esc(x.file)} <span class="muted">${x.mb} MB, ${esc(x.modified)}</span></li>`).join("")
+  $("mods").innerHTML = m.mods.length ? m.mods.map(x => `<li class="mod">${esc(x.file)}
+      <span class="muted">${x.mb} MB, ${esc(x.modified)}</span>
+      <button class="small" data-file="${esc(x.file)}">Remove</button></li>`).join("")
     : `<li class="muted">None</li>`;
+  document.querySelectorAll("#mods button[data-file]").forEach(b => b.onclick = () => removeMod(b.dataset.file));
+}
+
+async function removeMod(file) {
+  if (!confirm(`Remove ${file} from the game? It is moved to build\\removed-mods, so you can put it back.`)) return;
+  try {
+    await api("/api/remove", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({file})});
+  } catch (e) { alert(e.message); }
+  loadMods();
 }
 
 $("previewBtn").onclick = preview;

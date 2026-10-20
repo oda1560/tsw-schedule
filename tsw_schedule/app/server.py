@@ -11,11 +11,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from ..build import RouteSession, mod_name_for
-from ..patterns import PATTERN_DIR, load as load_pattern, summary_rows
+from ..patterns import PATTERN_DIR, headway_warnings, load as load_pattern, summary_rows
 from ..routes import ROUTES, USER_CONTENT
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-PORT = 8765
+PORT = int(os.environ.get("PORT", "8765"))
 
 
 class State:
@@ -48,6 +48,25 @@ def patterns_for(route_id):
     return out
 
 
+REMOVED = os.path.join(os.path.dirname(os.path.dirname(HERE)), "build", "removed-mods")
+
+
+def remove_mod(file_name):
+    """Take a mod out of the game: move its pak from UserContent to build/removed-mods (restorable)."""
+    if os.path.basename(file_name) != file_name or not file_name.lower().endswith(".pak"):
+        raise ValueError("not a mod file name")
+    src = os.path.join(USER_CONTENT, file_name)
+    if not os.path.exists(src):
+        raise FileNotFoundError(f"{file_name} is not installed")
+    os.makedirs(REMOVED, exist_ok=True)
+    dest = os.path.join(REMOVED, file_name)
+    try:
+        os.replace(src, dest)
+    except PermissionError:
+        raise PermissionError(f"{file_name} is in use: close Train Sim World 7 first, then remove it")
+    return dest
+
+
 def installed_mods():
     if not os.path.isdir(USER_CONTENT):
         return []
@@ -67,13 +86,14 @@ def preview(route_id, pattern_id):
         o["dropped"] += r["status"] == "dropped"
         o["swapped"] += any("not installed" in n for n in r["notes"])
     return {"rows": rows, "problems": [{"pattern": p, "message": m} for p, m in problems],
+            "close": headway_warnings(plans),
             "operators": by_operator, "title": pattern.get("title"), "notes": pattern.get("notes", "")}
 
 
 def run_build(route_id, pattern_id, do_install):
     try:
         pattern = load_pattern(pattern_id)
-        mod = mod_name_for(route_id, pattern_id if pattern_id != route_id else "typical")
+        mod = mod_name_for(pattern_id)
         STATE.log(f"building {mod} from {pattern_id}")
         plans, problems, pak, installed = STATE.session(route_id).build(
             pattern, mod, pattern["title"], pattern["description"], do_install=do_install)
@@ -138,6 +158,11 @@ class Handler(BaseHTTPRequestHandler):
             threading.Thread(target=run_build, args=(body["route"], body["pattern"], bool(body.get("install"))),
                              daemon=True).start()
             return self._send(202, {"started": True})
+        if url.path == "/api/remove":
+            try:
+                return self._send(200, {"moved_to": remove_mod(body["file"])})
+            except (ValueError, OSError) as e:
+                return self._send(400, {"error": str(e)})
         return self._send(404, {"error": "not found"})
 
 

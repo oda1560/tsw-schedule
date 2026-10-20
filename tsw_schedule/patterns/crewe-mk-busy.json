@@ -1,0 +1,1750 @@
+{
+  "route": "crewe-mk",
+  "title": "Crewe - Milton Keynes: busy weekday",
+  "description": "A busier weekday on the Trent Valley: peak-level frequencies all day, more freight (tsw-schedule). Times are approximate.",
+  "notes": "Based on the typical weekday, with services doubled where the line takes it: Avanti every 30 minutes to Birmingham, Manchester (via Stoke), Liverpool and Scotland; London Northwestern every 30 minutes to Crewe and every 20 via Northampton; Cross City, Chase Line and Northern every 20 minutes; CrossCountry about 6 trains an hour through Tamworth; freight hourly via Northampton plus extra aggregates, oil and engineers' trains. Every portal has at least 3 minutes between entries.",
+  "stock": {
+    "390": [
+      "TV-390-1",
+      "TV-390-0"
+    ],
+    "390-9": [
+      "TV-390-0",
+      "TV-390-1"
+    ],
+    "807": [
+      "TV-Evero-AWC-807-7car"
+    ],
+    "805": [
+      "TV-Evero-AWC-805-5car",
+      "TV-Evero-AWC-805-10car"
+    ],
+    "350-4": [
+      "TV-350-1-4car",
+      "TV-350-2-4car",
+      "TV-350-3-4car",
+      "TV-350-4-4car"
+    ],
+    "350-8": [
+      "TV-350-1-8car",
+      "TV-350-3-8car",
+      "TV-350-4-8car",
+      "TV-350-2-8car",
+      "TV-350-3-2-8car"
+    ],
+    "350-12": [
+      "TV-350-3-2-12car"
+    ],
+    "323-WMR": [
+      "TV-WMR323"
+    ],
+    "323-NT": [
+      "TV-NT323"
+    ],
+    "170-2": [
+      "TV-XC-170-2car"
+    ],
+    "170-3": [
+      "TV-XC-170-3car",
+      "TV-WMR-170-3car"
+    ],
+    "170-4": [
+      "TV-XC-170-4car"
+    ],
+    "170-WMR": [
+      "TV-WMR-170-3car"
+    ],
+    "220": [
+      "TV-XC220"
+    ],
+    "220x2": [
+      "TV-XC220x2"
+    ],
+    "150": [
+      "Evero-AWC-TfW-150",
+      "Evero-AWC-TfW-150-4car"
+    ],
+    "153": [
+      "TV-TFW153x2",
+      "Evero-AWC-2xTfW153"
+    ],
+    "158": [
+      "TV-158-4car"
+    ],
+    "70-FKA": [
+      "TV_1xClass70_20xFKA_Mix",
+      "TV_1xClass70_30xFKA_Mix",
+      "TV_1xClass70_36xFKA_Mix"
+    ],
+    "66-FKA": [
+      "TV_1xClass66_30xFKA_Mix",
+      "TV_2xClass66_40xFKA_Mix"
+    ],
+    "66-DRS-FKA": [
+      "TV_1xDRSClass66_24xFKA_L",
+      "TV_1xDRSClass66_20xFKA_L"
+    ],
+    "66-TEA": [
+      "CLP_EWS66_TEA16_L"
+    ],
+    "66-HOA": [
+      "CLA_EWS66_HOAt_x18_L",
+      "CLA_EWS66_HOAt_x16_L"
+    ],
+    "66-JNA": [
+      "TV_1xDBClass66_21xJNA_L",
+      "TV_1xColasClass66_21xJNA_L",
+      "TV_1xGBRFClass66_21xJNA_E"
+    ]
+  },
+  "services": [
+    {
+      "id": "awc-bham-down",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Birmingham New Street",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [],
+        "to": "Portal - To Coventry"
+      },
+      "stock": [
+        "390",
+        "807"
+      ],
+      "headcode": "9G",
+      "first": 10,
+      "times": {
+        "from": "06:00",
+        "to": "22:30",
+        "every": 30
+      },
+      "drivable": false
+    },
+    {
+      "id": "awc-gla-down",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Glasgow Central",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [],
+        "to": "Portal - Winsford Down Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1S",
+      "first": 40,
+      "times": {
+        "from": "06:04",
+        "to": "21:34",
+        "every": 30
+      },
+      "drivable": false
+    },
+    {
+      "id": "awc-man-stoke-down-a",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Manchester Piccadilly (via Stoke)",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Rugby"
+        ],
+        "to": "Portal - To Chatterley"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1H",
+      "first": 10,
+      "times": {
+        "from": "06:08",
+        "to": "21:38",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-liv-down",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Liverpool Lime Street",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Crewe"
+        ],
+        "to": "Portal - Winsford Down Fast"
+      },
+      "stock": [
+        "807",
+        "390"
+      ],
+      "headcode": "1F",
+      "first": 10,
+      "times": {
+        "from": "06:12",
+        "to": "21:42",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-bham-down-mk",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Wolverhampton",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Rugby"
+        ],
+        "to": "Portal - To Coventry"
+      },
+      "stock": [
+        "390",
+        "807"
+      ],
+      "headcode": "9G",
+      "first": 60,
+      "times": {
+        "from": "06:21",
+        "to": "22:21",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-man-crewe-down",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Manchester Piccadilly (via Crewe)",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Stafford",
+          "Crewe"
+        ],
+        "to": "Portal - To Manchester Down Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1H",
+      "first": 60,
+      "times": {
+        "from": "06:24",
+        "to": "21:24",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-chester-down",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Chester / Holyhead",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Stafford",
+          "Crewe"
+        ],
+        "to": "Portal - To Chester"
+      },
+      "stock": [
+        "805",
+        "807",
+        "390-9"
+      ],
+      "headcode": "1D",
+      "first": 80,
+      "times": {
+        "from": "06:27",
+        "to": "20:27",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-man-stoke-down-b",
+      "operator": "Avanti West Coast",
+      "name": "London Euston to Manchester Piccadilly (via Stoke)",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Nuneaton"
+        ],
+        "to": "Portal - To Chatterley"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1H",
+      "first": 40,
+      "times": {
+        "from": "06:51",
+        "to": "21:51",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-bham-up",
+      "operator": "Avanti West Coast",
+      "name": "Birmingham New Street to London Euston",
+      "path": {
+        "from": "Portal - From Coventry",
+        "stops": [],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "390",
+        "807"
+      ],
+      "headcode": "1B",
+      "first": 10,
+      "times": {
+        "from": "06:05",
+        "to": "21:35",
+        "every": 30
+      },
+      "drivable": false
+    },
+    {
+      "id": "awc-bham-up-mk",
+      "operator": "Avanti West Coast",
+      "name": "Wolverhampton to London Euston",
+      "path": {
+        "from": "Portal - From Coventry",
+        "stops": [
+          "Rugby",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "390",
+        "807"
+      ],
+      "headcode": "1B",
+      "first": 50,
+      "times": {
+        "from": "06:15",
+        "to": "21:15",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-man-stoke-up-a",
+      "operator": "Avanti West Coast",
+      "name": "Manchester Piccadilly to London Euston (via Stoke)",
+      "path": {
+        "from": "Portal - From Chatterley",
+        "stops": [
+          "Rugby",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1A",
+      "first": 10,
+      "times": {
+        "from": "06:20",
+        "to": "21:50",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-man-stoke-up-b",
+      "operator": "Avanti West Coast",
+      "name": "Manchester Piccadilly to London Euston (via Stoke)",
+      "path": {
+        "from": "Portal - From Chatterley",
+        "stops": [
+          "Nuneaton",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1A",
+      "first": 50,
+      "times": {
+        "from": "06:35",
+        "to": "20:35",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-man-crewe-up",
+      "operator": "Avanti West Coast",
+      "name": "Manchester Piccadilly to London Euston (via Crewe)",
+      "path": {
+        "from": "Portal - From Manchester Up Fast",
+        "stops": [
+          "Crewe",
+          "Stafford",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1A",
+      "first": 60,
+      "times": {
+        "from": "06:05",
+        "to": "20:35",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-liv-up",
+      "operator": "Avanti West Coast",
+      "name": "Liverpool Lime Street to London Euston",
+      "path": {
+        "from": "Portal - Winsford Up Fast",
+        "stops": [
+          "Crewe",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "807",
+        "390"
+      ],
+      "headcode": "1A",
+      "first": 80,
+      "times": {
+        "from": "06:12",
+        "to": "20:42",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-gla-up",
+      "operator": "Avanti West Coast",
+      "name": "Glasgow Central to London Euston",
+      "path": {
+        "from": "Portal - Winsford Up Fast",
+        "stops": [],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1M",
+      "first": 10,
+      "times": {
+        "from": "07:25",
+        "to": "21:55",
+        "every": 30
+      },
+      "drivable": false
+    },
+    {
+      "id": "awc-chester-up",
+      "operator": "Avanti West Coast",
+      "name": "Chester / Holyhead to London Euston",
+      "path": {
+        "from": "Portal - From Chester",
+        "stops": [
+          "Crewe",
+          "Stafford",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "805",
+        "807",
+        "390-9"
+      ],
+      "headcode": "1A",
+      "first": 40,
+      "times": {
+        "from": "06:40",
+        "to": "19:40",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-bham-scot-down",
+      "operator": "Avanti West Coast",
+      "name": "Birmingham New Street to Glasgow / Edinburgh",
+      "path": {
+        "from": "Portal - From Penkridge",
+        "stops": [
+          "Stafford",
+          "Crewe"
+        ],
+        "to": "Portal - Winsford Down Fast"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "1S",
+      "first": 10,
+      "times": {
+        "from": "06:48",
+        "to": "20:48",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "awc-scot-bham-up",
+      "operator": "Avanti West Coast",
+      "name": "Glasgow / Edinburgh to Birmingham New Street",
+      "path": {
+        "from": "Portal - Winsford Up Fast",
+        "stops": [
+          "Crewe",
+          "Stafford"
+        ],
+        "to": "Portal - To Penkridge"
+      },
+      "stock": [
+        "390"
+      ],
+      "headcode": "9M",
+      "first": 40,
+      "times": {
+        "from": "08:05",
+        "to": "22:05",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-crewe-down",
+      "operator": "London Northwestern Railway",
+      "name": "London Euston to Crewe",
+      "path": {
+        "from": "Portal - Bletchley Down Fast",
+        "stops": [
+          "Milton Keynes",
+          "Rugby",
+          "Nuneaton",
+          "Atherstone",
+          "Tamworth",
+          "Lichfield Trent Valley",
+          "Rugeley Trent Valley",
+          "Stafford",
+          "Crewe"
+        ],
+        "to": "Crewe"
+      },
+      "stock": [
+        "350-8",
+        "350-4"
+      ],
+      "headcode": "1U",
+      "first": 21,
+      "step": 2,
+      "times": {
+        "from": "05:17",
+        "to": "21:47",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-crewe-up",
+      "operator": "London Northwestern Railway",
+      "name": "Crewe to London Euston",
+      "path": {
+        "from": "Crewe",
+        "stops": [
+          "Stafford",
+          "Rugeley Trent Valley",
+          "Lichfield Trent Valley",
+          "Tamworth",
+          "Atherstone",
+          "Nuneaton",
+          "Rugby",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Fast"
+      },
+      "stock": [
+        "350-8",
+        "350-4"
+      ],
+      "headcode": "1U",
+      "first": 20,
+      "step": 2,
+      "times": {
+        "from": "07:13",
+        "to": "21:43",
+        "every": 30,
+        "also": [
+          "06:13"
+        ]
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-nbh-down-a",
+      "operator": "London Northwestern Railway",
+      "name": "London Euston to Birmingham New Street (via Northampton)",
+      "path": {
+        "from": "Portal - Bletchley Down Slow",
+        "stops": [
+          "Milton Keynes",
+          "Wolverton"
+        ],
+        "to": "Portal - To Northampton"
+      },
+      "stock": [
+        "350-8",
+        "350-4"
+      ],
+      "headcode": "1Y",
+      "first": 11,
+      "step": 2,
+      "times": {
+        "from": "06:05",
+        "to": "22:45",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-nbh-down-b",
+      "operator": "London Northwestern Railway",
+      "name": "London Euston to Birmingham New Street (via Northampton)",
+      "path": {
+        "from": "Portal - From Long Buckby",
+        "stops": [
+          "Rugby"
+        ],
+        "to": "Portal - To Coventry"
+      },
+      "stock": [
+        "350-8",
+        "350-4"
+      ],
+      "same_headcodes_as": "lnr-nbh-down-a",
+      "headcode": "1Y",
+      "times": {
+        "from": "06:34",
+        "to": "23:14",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-nbh-up-a",
+      "operator": "London Northwestern Railway",
+      "name": "Birmingham New Street to London Euston (via Northampton)",
+      "path": {
+        "from": "Portal - From Coventry",
+        "stops": [
+          "Rugby"
+        ],
+        "to": "Portal - To Long Buckby"
+      },
+      "stock": [
+        "350-8",
+        "350-4"
+      ],
+      "headcode": "1Y",
+      "first": 10,
+      "step": 2,
+      "times": {
+        "from": "05:40",
+        "to": "21:40",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-nbh-up-b",
+      "operator": "London Northwestern Railway",
+      "name": "Birmingham New Street to London Euston (via Northampton)",
+      "path": {
+        "from": "Portal - From Northampton",
+        "stops": [
+          "Wolverton",
+          "Milton Keynes"
+        ],
+        "to": "Portal - Bletchley Up Slow"
+      },
+      "stock": [
+        "350-8",
+        "350-4"
+      ],
+      "same_headcodes_as": "lnr-nbh-up-a",
+      "headcode": "1Y",
+      "times": {
+        "from": "06:11",
+        "to": "22:11",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-mk-arr",
+      "operator": "London Northwestern Railway",
+      "name": "London Euston to Milton Keynes Central",
+      "path": {
+        "from": "Portal - Bletchley Down Slow",
+        "stops": [
+          "Milton Keynes"
+        ],
+        "to": "Milton Keynes"
+      },
+      "stock": [
+        "350-4",
+        "350-8"
+      ],
+      "headcode": "2K",
+      "first": 3,
+      "step": 2,
+      "times": {
+        "from": "05:55",
+        "to": "22:55",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-mk-dep",
+      "operator": "London Northwestern Railway",
+      "name": "Milton Keynes Central to London Euston",
+      "path": {
+        "from": "Milton Keynes",
+        "stops": [],
+        "to": "Portal - Bletchley Up Slow"
+      },
+      "stock": [
+        "350-4",
+        "350-8"
+      ],
+      "headcode": "2K",
+      "first": 2,
+      "step": 2,
+      "times": {
+        "from": "06:10",
+        "to": "23:10",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-bham-liv-down",
+      "operator": "London Northwestern Railway",
+      "name": "Birmingham New Street to Liverpool Lime Street",
+      "path": {
+        "from": "Portal - From Penkridge",
+        "stops": [
+          "Stafford",
+          "Crewe"
+        ],
+        "to": "Portal - Winsford Down Fast"
+      },
+      "stock": [
+        "350-4",
+        "350-8"
+      ],
+      "headcode": "1F",
+      "first": 50,
+      "times": {
+        "from": "06:14",
+        "to": "22:14",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "lnr-liv-bham-up",
+      "operator": "London Northwestern Railway",
+      "name": "Liverpool Lime Street to Birmingham New Street",
+      "path": {
+        "from": "Portal - Winsford Up Fast",
+        "stops": [
+          "Crewe",
+          "Stafford"
+        ],
+        "to": "Portal - To Penkridge"
+      },
+      "stock": [
+        "350-4",
+        "350-8"
+      ],
+      "headcode": "1G",
+      "first": 50,
+      "times": {
+        "from": "06:00",
+        "to": "22:30",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "wmr-crosscity-arr",
+      "operator": "West Midlands Railway",
+      "name": "Redditch to Lichfield Trent Valley",
+      "path": {
+        "from": "Portal - From Lichfield City",
+        "stops": [
+          "Lichfield Trent Valley"
+        ],
+        "to": "Lichfield Trent Valley"
+      },
+      "stock": [
+        "323-WMR"
+      ],
+      "headcode": "2P",
+      "first": 1,
+      "step": 2,
+      "times": {
+        "from": "06:08",
+        "to": "23:08",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "wmr-crosscity-dep",
+      "operator": "West Midlands Railway",
+      "name": "Lichfield Trent Valley to Redditch",
+      "path": {
+        "from": "Lichfield Trent Valley",
+        "stops": [],
+        "to": "Portal - To Lichfield City"
+      },
+      "stock": [
+        "323-WMR"
+      ],
+      "headcode": "2N",
+      "first": 2,
+      "step": 2,
+      "times": {
+        "from": "06:22",
+        "to": "23:22",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "wmr-chase-arr",
+      "operator": "West Midlands Railway",
+      "name": "Birmingham New Street to Rugeley Trent Valley",
+      "path": {
+        "from": "Portal - From Rugeley Town",
+        "stops": [
+          "Rugeley Trent Valley"
+        ],
+        "to": "Rugeley Trent Valley"
+      },
+      "stock": [
+        "350-4",
+        "350-8"
+      ],
+      "headcode": "2H",
+      "first": 1,
+      "step": 2,
+      "times": {
+        "from": "05:54",
+        "to": "22:54",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "wmr-chase-dep",
+      "operator": "West Midlands Railway",
+      "name": "Rugeley Trent Valley to Birmingham New Street",
+      "path": {
+        "from": "Rugeley Trent Valley",
+        "stops": [],
+        "to": "Portal - To Rugeley Town "
+      },
+      "stock": [
+        "350-4",
+        "350-8"
+      ],
+      "headcode": "2H",
+      "first": 2,
+      "step": 2,
+      "times": {
+        "from": "06:08",
+        "to": "23:08",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "wmr-nun-arr",
+      "operator": "West Midlands Railway",
+      "name": "Coventry to Nuneaton",
+      "path": {
+        "from": "Portal - From Bedworth",
+        "stops": [
+          "Nuneaton"
+        ],
+        "to": "Nuneaton"
+      },
+      "stock": [
+        "170-WMR",
+        "170-3"
+      ],
+      "headcode": "2G",
+      "first": 61,
+      "step": 2,
+      "times": {
+        "from": "05:42",
+        "to": "22:42",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "wmr-nun-dep",
+      "operator": "West Midlands Railway",
+      "name": "Nuneaton to Coventry",
+      "path": {
+        "from": "Nuneaton",
+        "stops": [],
+        "to": "Portal - To Bedworth"
+      },
+      "stock": [
+        "170-WMR",
+        "170-3"
+      ],
+      "headcode": "2G",
+      "first": 62,
+      "step": 2,
+      "times": {
+        "from": "06:00",
+        "to": "23:00",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-man-south",
+      "operator": "CrossCountry",
+      "name": "Manchester Piccadilly to Bournemouth / Bristol",
+      "path": {
+        "from": "Portal - From Stone",
+        "stops": [
+          "Stafford"
+        ],
+        "to": "Portal - To Penkridge"
+      },
+      "stock": [
+        "220",
+        "170-4",
+        "170-3"
+      ],
+      "headcode": "1O",
+      "first": 10,
+      "times": {
+        "from": "06:16",
+        "to": "22:56",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-south-man",
+      "operator": "CrossCountry",
+      "name": "Bournemouth / Bristol to Manchester Piccadilly",
+      "path": {
+        "from": "Portal - From Penkridge",
+        "stops": [
+          "Stafford"
+        ],
+        "to": "Portal - To Stone"
+      },
+      "stock": [
+        "220",
+        "170-4",
+        "170-3"
+      ],
+      "headcode": "1H",
+      "first": 80,
+      "times": {
+        "from": "06:00",
+        "to": "22:40",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-bham-leic",
+      "operator": "CrossCountry",
+      "name": "Birmingham New Street to Stansted Airport",
+      "path": {
+        "from": "Portal - From Arley",
+        "stops": [
+          "Nuneaton"
+        ],
+        "to": "Portal - To Leicester"
+      },
+      "stock": [
+        "170-3",
+        "170-2"
+      ],
+      "headcode": "1L",
+      "first": 20,
+      "times": {
+        "from": "05:50",
+        "to": "22:50",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-leic-bham",
+      "operator": "CrossCountry",
+      "name": "Stansted Airport to Birmingham New Street",
+      "path": {
+        "from": "Portal - From Leicester",
+        "stops": [
+          "Nuneaton"
+        ],
+        "to": "Portal - To Arley"
+      },
+      "stock": [
+        "170-3",
+        "170-2"
+      ],
+      "headcode": "1N",
+      "first": 40,
+      "times": {
+        "from": "06:15",
+        "to": "23:15",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-cdf-nott",
+      "operator": "CrossCountry",
+      "name": "Cardiff Central to Nottingham",
+      "path": {
+        "from": "Portal - From Wilnecote",
+        "stops": [
+          "Tamworth"
+        ],
+        "to": "Portal - To Burton-on-Trent"
+      },
+      "stock": [
+        "170-3",
+        "170-2"
+      ],
+      "headcode": "1D",
+      "first": 50,
+      "times": {
+        "from": "06:10",
+        "to": "22:40",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-nott-cdf",
+      "operator": "CrossCountry",
+      "name": "Nottingham to Cardiff Central",
+      "path": {
+        "from": "Portal - From Burton-on-Trent",
+        "stops": [
+          "Tamworth"
+        ],
+        "to": "Portal - To Wilnecote"
+      },
+      "stock": [
+        "170-3",
+        "170-2"
+      ],
+      "headcode": "1G",
+      "first": 10,
+      "times": {
+        "from": "06:22",
+        "to": "22:22",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-ne-sw",
+      "operator": "CrossCountry",
+      "name": "Newcastle / Leeds to Plymouth / Bristol",
+      "path": {
+        "from": "Portal - From Burton-on-Trent",
+        "stops": [],
+        "to": "Portal - To Wilnecote"
+      },
+      "stock": [
+        "220x2",
+        "220",
+        "170-4"
+      ],
+      "headcode": "1V",
+      "first": 40,
+      "times": {
+        "from": "06:15",
+        "to": "21:45",
+        "every": 30
+      },
+      "drivable": false
+    },
+    {
+      "id": "xc-ne-sw-tam",
+      "operator": "CrossCountry",
+      "name": "Edinburgh / York to Plymouth / Bristol",
+      "path": {
+        "from": "Portal - From Burton-on-Trent",
+        "stops": [
+          "Tamworth"
+        ],
+        "to": "Portal - To Wilnecote"
+      },
+      "stock": [
+        "220",
+        "170-4"
+      ],
+      "headcode": "1V",
+      "first": 10,
+      "times": {
+        "from": "06:05",
+        "to": "21:05",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "xc-sw-ne",
+      "operator": "CrossCountry",
+      "name": "Plymouth / Bristol to Newcastle / Leeds",
+      "path": {
+        "from": "Portal - From Wilnecote",
+        "stops": [],
+        "to": "Portal - To Burton-on-Trent"
+      },
+      "stock": [
+        "220x2",
+        "220",
+        "170-4"
+      ],
+      "headcode": "1E",
+      "first": 40,
+      "times": {
+        "from": "07:00",
+        "to": "21:30",
+        "every": 30
+      },
+      "drivable": false
+    },
+    {
+      "id": "xc-sw-ne-tam",
+      "operator": "CrossCountry",
+      "name": "Plymouth / Bristol to Edinburgh / York",
+      "path": {
+        "from": "Portal - From Wilnecote",
+        "stops": [
+          "Tamworth"
+        ],
+        "to": "Portal - To Burton-on-Trent"
+      },
+      "stock": [
+        "220",
+        "170-4"
+      ],
+      "headcode": "1S",
+      "first": 60,
+      "times": {
+        "from": "07:20",
+        "to": "21:20",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "nt-man-crewe",
+      "operator": "Northern",
+      "name": "Manchester Piccadilly to Crewe",
+      "path": {
+        "from": "Portal - From Manchester Up Fast",
+        "stops": [
+          "Crewe"
+        ],
+        "to": "Crewe"
+      },
+      "stock": [
+        "323-NT"
+      ],
+      "headcode": "2A",
+      "first": 1,
+      "step": 2,
+      "times": {
+        "from": "05:48",
+        "to": "22:48",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "nt-crewe-man",
+      "operator": "Northern",
+      "name": "Crewe to Manchester Piccadilly",
+      "path": {
+        "from": "Crewe",
+        "stops": [],
+        "to": "Portal - To Manchester Down Fast"
+      },
+      "stock": [
+        "323-NT"
+      ],
+      "headcode": "2A",
+      "first": 2,
+      "step": 2,
+      "times": {
+        "from": "06:02",
+        "to": "23:02",
+        "every": 20
+      },
+      "drivable": true
+    },
+    {
+      "id": "tfw-chester-crewe",
+      "operator": "Transport for Wales",
+      "name": "Chester to Crewe",
+      "path": {
+        "from": "Portal - From Chester",
+        "stops": [
+          "Crewe"
+        ],
+        "to": "Crewe"
+      },
+      "stock": [
+        "150",
+        "153"
+      ],
+      "headcode": "2K",
+      "first": 51,
+      "step": 2,
+      "times": {
+        "from": "06:02",
+        "to": "22:32",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "tfw-crewe-chester",
+      "operator": "Transport for Wales",
+      "name": "Crewe to Chester",
+      "path": {
+        "from": "Crewe",
+        "stops": [],
+        "to": "Portal - To Chester"
+      },
+      "stock": [
+        "150",
+        "153"
+      ],
+      "headcode": "2D",
+      "first": 50,
+      "step": 2,
+      "times": {
+        "from": "06:28",
+        "to": "22:58",
+        "every": 30
+      },
+      "drivable": true
+    },
+    {
+      "id": "tfw-man-cdf",
+      "operator": "Transport for Wales",
+      "name": "Manchester Piccadilly to Cardiff Central",
+      "path": {
+        "from": "Portal - From Manchester Up Fast",
+        "stops": [
+          "Crewe"
+        ],
+        "to": "Portal - To Nantwich"
+      },
+      "stock": [
+        "150",
+        "153"
+      ],
+      "headcode": "1V",
+      "first": 30,
+      "times": {
+        "from": "06:14",
+        "to": "21:14",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "tfw-cdf-man",
+      "operator": "Transport for Wales",
+      "name": "Cardiff Central to Manchester Piccadilly",
+      "path": {
+        "from": "Portal - From Nantwich",
+        "stops": [
+          "Crewe"
+        ],
+        "to": "Portal - To Manchester Down Fast"
+      },
+      "stock": [
+        "150",
+        "153"
+      ],
+      "headcode": "1W",
+      "first": 10,
+      "times": {
+        "from": "07:27",
+        "to": "22:27",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "tfw-shrews-crewe",
+      "operator": "Transport for Wales",
+      "name": "Shrewsbury to Crewe",
+      "path": {
+        "from": "Portal - From Nantwich",
+        "stops": [
+          "Crewe"
+        ],
+        "to": "Crewe"
+      },
+      "stock": [
+        "153",
+        "150"
+      ],
+      "headcode": "2K",
+      "first": 30,
+      "step": 2,
+      "times": {
+        "from": "06:20",
+        "to": "21:20",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "tfw-crewe-shrews",
+      "operator": "Transport for Wales",
+      "name": "Crewe to Shrewsbury",
+      "path": {
+        "from": "Crewe",
+        "stops": [],
+        "to": "Portal - To Nantwich"
+      },
+      "stock": [
+        "153",
+        "150"
+      ],
+      "headcode": "2J",
+      "first": 40,
+      "step": 2,
+      "times": {
+        "from": "06:43",
+        "to": "21:43",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "emr-crewe-derby",
+      "operator": "East Midlands Railway",
+      "name": "Crewe to Derby / Newark",
+      "path": {
+        "from": "Crewe",
+        "stops": [
+          "Alsager"
+        ],
+        "to": "Alsager"
+      },
+      "stock": [
+        "158"
+      ],
+      "headcode": "1N",
+      "first": 3,
+      "step": 2,
+      "times": {
+        "from": "06:15",
+        "to": "22:15",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "emr-derby-crewe",
+      "operator": "East Midlands Railway",
+      "name": "Derby / Newark to Crewe",
+      "path": {
+        "from": "Alsager",
+        "stops": [
+          "Crewe"
+        ],
+        "to": "Crewe"
+      },
+      "stock": [
+        "158"
+      ],
+      "headcode": "1K",
+      "first": 51,
+      "step": 2,
+      "times": {
+        "from": "06:50",
+        "to": "22:50",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "fl-int-nn-down",
+      "operator": "Freightliner",
+      "name": "Felixstowe to Trafford Park (intermodal)",
+      "path": {
+        "from": "Portal - Bletchley Down Slow",
+        "stops": [],
+        "to": "Portal - To Northampton"
+      },
+      "stock": [
+        "70-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4M",
+      "first": 10,
+      "times": {
+        "from": "00:21",
+        "to": "23:21",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "fl-int-nn-up",
+      "operator": "Freightliner",
+      "name": "Trafford Park to Felixstowe (intermodal)",
+      "path": {
+        "from": "Portal - From Northampton",
+        "stops": [],
+        "to": "Portal - Bletchley Up Slow"
+      },
+      "stock": [
+        "70-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4L",
+      "first": 40,
+      "times": {
+        "from": "00:03",
+        "to": "23:03",
+        "every": 60
+      },
+      "drivable": true
+    },
+    {
+      "id": "fl-int-tv-down",
+      "operator": "Freightliner",
+      "name": "Southampton to Garston (intermodal)",
+      "path": {
+        "from": "Portal - From Long Buckby",
+        "stops": [
+          "Rugby",
+          "Basford Hall Down Slow Independent"
+        ],
+        "to": "Portal - Winsford Down Slow"
+      },
+      "stock": [
+        "70-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4M",
+      "first": 60,
+      "times": {
+        "from": "01:24",
+        "to": "23:24",
+        "every": 120
+      },
+      "drivable": true
+    },
+    {
+      "id": "fl-int-tv-up",
+      "operator": "Freightliner",
+      "name": "Ditton to Felixstowe (intermodal)",
+      "path": {
+        "from": "Portal - From Manchester Up Slow",
+        "stops": [
+          "Basford Hall Up Goods",
+          "None"
+        ],
+        "to": "Portal - To Long Buckby"
+      },
+      "stock": [
+        "70-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4L",
+      "first": 70,
+      "times": {
+        "from": "00:33",
+        "to": "22:33",
+        "every": 120
+      },
+      "drivable": true
+    },
+    {
+      "id": "fl-bham-down",
+      "operator": "Freightliner",
+      "name": "Felixstowe to Lawley Street (intermodal)",
+      "path": {
+        "from": "Portal - From Long Buckby",
+        "stops": [
+          "Rugby",
+          "Nuneaton"
+        ],
+        "to": "Portal - To Arley"
+      },
+      "stock": [
+        "70-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4M",
+      "first": 90,
+      "times": {
+        "from": "00:44",
+        "to": "22:44",
+        "every": 120
+      },
+      "drivable": true
+    },
+    {
+      "id": "fl-bham-up",
+      "operator": "Freightliner",
+      "name": "Lawley Street to Felixstowe (intermodal)",
+      "path": {
+        "from": "Portal - From Arley",
+        "stops": [
+          "Nuneaton",
+          "None"
+        ],
+        "to": "Portal - To Long Buckby"
+      },
+      "stock": [
+        "70-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4L",
+      "first": 90,
+      "times": {
+        "from": "01:35",
+        "to": "23:35",
+        "every": 120
+      },
+      "drivable": true
+    },
+    {
+      "id": "drs-nn-down",
+      "operator": "DRS",
+      "name": "Tilbury to Daventry / Coatbridge (intermodal)",
+      "path": {
+        "from": "Portal - Bletchley Down Slow",
+        "stops": [],
+        "to": "Portal - To Northampton"
+      },
+      "stock": [
+        "66-DRS-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4M",
+      "first": 7,
+      "times": [
+        "04:41",
+        "08:41",
+        "12:41",
+        "16:41",
+        "20:41"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "drs-nn-up",
+      "operator": "DRS",
+      "name": "Coatbridge / Daventry to Tilbury (intermodal)",
+      "path": {
+        "from": "Portal - From Northampton",
+        "stops": [],
+        "to": "Portal - Bletchley Up Slow"
+      },
+      "stock": [
+        "66-DRS-FKA",
+        "66-FKA"
+      ],
+      "headcode": "4L",
+      "first": 48,
+      "times": [
+        "02:21",
+        "07:21",
+        "11:21",
+        "15:21",
+        "19:21"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "db-oil-down",
+      "operator": "DB Cargo",
+      "name": "Kingsbury to Lindsey (oil)",
+      "path": {
+        "from": "Portal - From Wilnecote",
+        "stops": [],
+        "to": "Portal - To Burton-on-Trent"
+      },
+      "stock": [
+        "66-TEA"
+      ],
+      "headcode": "6E",
+      "first": 46,
+      "times": [
+        "02:50",
+        "05:50",
+        "10:50",
+        "15:50",
+        "19:50"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "db-oil-up",
+      "operator": "DB Cargo",
+      "name": "Lindsey to Kingsbury (oil)",
+      "path": {
+        "from": "Portal - From Burton-on-Trent",
+        "stops": [],
+        "to": "Portal - To Wilnecote"
+      },
+      "stock": [
+        "66-TEA"
+      ],
+      "headcode": "6M",
+      "first": 0,
+      "times": [
+        "03:35",
+        "06:35",
+        "11:35",
+        "16:35",
+        "20:35"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "db-hoa-down",
+      "operator": "DB Cargo",
+      "name": "Peak Forest to Bescot (aggregates)",
+      "path": {
+        "from": "Portal - From Long Buckby",
+        "stops": [
+          "Rugby"
+        ],
+        "to": "Portal - To Coventry"
+      },
+      "stock": [
+        "66-HOA"
+      ],
+      "headcode": "6M",
+      "first": 79,
+      "times": [
+        "02:04",
+        "10:04",
+        "18:04"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "db-hoa-up",
+      "operator": "DB Cargo",
+      "name": "Bescot to Peak Forest (aggregates)",
+      "path": {
+        "from": "Portal - From Coventry",
+        "stops": [],
+        "to": "Portal - To Long Buckby"
+      },
+      "stock": [
+        "66-HOA"
+      ],
+      "headcode": "6V",
+      "first": 6,
+      "times": [
+        "02:50",
+        "10:50",
+        "18:50"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "db-jna-down",
+      "operator": "DB Cargo",
+      "name": "Bescot engineers' train (JNA)",
+      "path": {
+        "from": "Portal - From Long Buckby",
+        "stops": [
+          "Rugby",
+          "Nuneaton"
+        ],
+        "to": "Portal - To Arley"
+      },
+      "stock": [
+        "66-JNA"
+      ],
+      "headcode": "6F",
+      "first": 50,
+      "times": [
+        "05:48",
+        "13:48"
+      ],
+      "drivable": true
+    },
+    {
+      "id": "db-jna-up",
+      "operator": "DB Cargo",
+      "name": "Bescot engineers' train (JNA)",
+      "path": {
+        "from": "Portal - From Arley",
+        "stops": [
+          "Nuneaton",
+          "Rugby"
+        ],
+        "to": "Portal - To Long Buckby"
+      },
+      "stock": [
+        "66-JNA"
+      ],
+      "headcode": "6B",
+      "first": 50,
+      "times": [
+        "07:05",
+        "16:05"
+      ],
+      "drivable": true
+    }
+  ]
+}

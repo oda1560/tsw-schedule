@@ -15,7 +15,7 @@ from .engine.ownership import installed_plugins
 from .engine.pakread import Pak
 from .engine.runs import Timetable
 from .engine.tracks import LayerTrack
-from .patterns import Planner, load as load_pattern, summary_rows
+from .patterns import Planner, headway_warnings, load as load_pattern, summary_rows
 from .routes import GAME, ROUTES, USER_CONTENT
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -108,32 +108,38 @@ class RouteSession:
         return plans, problems, pak, installed
 
 
-def mod_name_for(route_id, pattern_name):
-    return "TSWS_" + "".join(part.capitalize() for part in f"{route_id}-{pattern_name}".replace("_", "-").split("-"))
+def mod_name_for(pattern_id):
+    """crewe-mk-typical -> TSWS_CreweMkTypical (the mod, its pak file and its plugin share this name)."""
+    return "TSWS_" + "".join(part.capitalize() for part in pattern_id.replace("_", "-").split("-"))
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("route", choices=sorted(ROUTES))
-    ap.add_argument("--pattern", default=None, help="pattern file name (default: the route id)")
+    ap.add_argument("--pattern", default=None, help="pattern file name (default: <route>-typical)")
     ap.add_argument("--build", action="store_true")
     ap.add_argument("--install", action="store_true")
+    ap.add_argument("--all", action="store_true", help="list every planned train, not just those with notes")
     args = ap.parse_args()
-    pattern_name = args.pattern or args.route
-    pattern = load_pattern(pattern_name)
+    pattern_id = args.pattern or f"{args.route}-typical"
+    pattern = load_pattern(pattern_id)
     session = RouteSession(args.route)
     if args.build or args.install:
-        plans, problems, _, _ = session.build(pattern, mod_name_for(args.route, "typical"), pattern["title"],
+        plans, problems, _, _ = session.build(pattern, mod_name_for(pattern_id), pattern["title"],
                                               pattern["description"], do_install=args.install)
     else:
         plans, problems = session.plan(pattern)
     rows = summary_rows(plans)
     ok = sum(1 for r in rows if r["status"] != "dropped")
-    print(f"\n{ok} trains planned, {len(rows) - ok} dropped, {len(problems)} pattern problems")
+    close = headway_warnings(plans)
+    print(f"\n{ok} trains planned, {len(rows) - ok} dropped, {len(problems)} pattern problems, "
+          f"{len(close)} close entries")
     for pid, msg in problems:
         print(f"  PROBLEM {pid}: {msg}")
+    for w in close:
+        print(f"  CLOSE {w}")
     for r in rows:
-        if r["status"] == "dropped" or r["notes"]:
+        if args.all or r["status"] == "dropped" or any("not installed" not in n for n in r["notes"]):
             print(f"  {r['headcode']} {r['start']} {r['pattern']}: {r['status']} {'; '.join(r['notes'])}")
 
 

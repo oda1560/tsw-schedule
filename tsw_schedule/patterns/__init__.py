@@ -127,6 +127,22 @@ class Planner:
         return plans, problems
 
 
+def headway_warnings(plans, min_gap_s=180):
+    """Trains appearing at the same portal less than min_gap_s apart (the second would wait or bunch)."""
+    by_portal = {}
+    for p in plans:
+        if not p.dropped and p.template.start_kind == "portal":
+            by_portal.setdefault(p.template.start_marker, []).append(p)
+    out = []
+    for portal, ps in sorted(by_portal.items()):
+        ps.sort(key=lambda p: p.start_s)
+        for a, b in zip(ps, ps[1:]):
+            if b.start_s - a.start_s < min_gap_s:
+                out.append(f"{portal}: {a.headcode} {fmt_time(a.start_s)} ({a.pattern}) and {b.headcode} "
+                           f"{fmt_time(b.start_s)} ({b.pattern})")
+    return out
+
+
 def summary_rows(plans):
     """One row per planned train, for previews."""
     rows = []
