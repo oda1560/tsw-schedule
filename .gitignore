@@ -1,0 +1,16 @@
+# Anything extracted or derived from the game's files stays local (Dovetail's content):
+/extracted/
+/data/
+/dumps/
+/build/
+/mod-staging/
+/mod-usercontent/
+*.pak
+*.uasset
+*.uexp
+*.bin
+
+# Caches and Python noise
+/cache/
+__pycache__/
+*.pyc

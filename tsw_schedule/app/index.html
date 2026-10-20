@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tsw-schedule</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #1d2330; --muted: #5e6778; --line: #e3e6ec;
+    --accent: #1f6feb; --accent-text: #ffffff; --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e;
+    --chip: #eef1f5; --chip-on: #dbe7fd; --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1218; --panel: #171b23; --text: #e6e9ef; --muted: #98a1b2; --line: #2a303b;
+      --accent: #4c8dff; --accent-text: #0b0d12; --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+      --chip: #222834; --chip-on: #1d3355; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--panel);
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; letter-spacing: .2px; }
+  header .sub { color: var(--muted); }
+  main { padding: 16px 20px 40px; max-width: 1400px; margin: 0 auto; display: grid; gap: 16px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  label { color: var(--muted); font-size: 12px; display: block; margin-bottom: 4px; }
+  select, input[type=search] { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 7px; padding: 7px 10px; min-width: 220px; }
+  button { font: inherit; border-radius: 7px; padding: 8px 14px; border: 1px solid var(--line); cursor: pointer;
+    background: var(--panel); color: var(--text); }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  .muted { color: var(--muted); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .stat { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .stat b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { background: var(--chip); border: 1px solid transparent; border-radius: 999px; padding: 4px 10px; font-size: 12px;
+    cursor: pointer; user-select: none; }
+  .chip.on { background: var(--chip-on); border-color: var(--accent); }
+  .chip .n { color: var(--muted); margin-left: 4px; }
+  .table-wrap { overflow: auto; max-height: 62vh; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 600; z-index: 1; }
+  td.t, td.hc { font-family: var(--mono); white-space: nowrap; }
+  td.stops { color: var(--muted); max-width: 360px; }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--chip);
+    margin: 0 4px 2px 0; white-space: nowrap; }
+  .tag.ok { color: var(--ok); } .tag.warn { color: var(--warn); } .tag.bad { color: var(--bad); }
+  .log { font-family: var(--mono); font-size: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px; max-height: 220px; overflow: auto; white-space: pre-wrap; }
+  .notes { color: var(--muted); max-width: 900px; }
+  .problems li { color: var(--bad); }
+  @media (max-width: 640px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+    select, input[type=search] { min-width: 0; width: 100%; }
+    .row > div { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>tsw-schedule</h1>
+  <span class="sub">Typical-day timetables for Train Sim World 7</span>
+</header>
+<main>
+  <section class="panel">
+    <div class="row">
+      <div><label for="route">Route</label><select id="route"></select></div>
+      <div><label for="pattern">Pattern</label><select id="pattern"></select></div>
+      <div style="align-self:flex-end"><button id="previewBtn">Preview</button></div>
+    </div>
+    <p class="notes" id="patternNotes"></p>
+  </section>
+
+  <section class="panel" id="previewPanel" hidden>
+    <div class="stats" id="stats"></div>
+    <ul class="problems" id="problems"></ul>
+    <div style="margin:12px 0 8px" class="chips" id="operators"></div>
+    <div class="row" style="margin-bottom:10px">
+      <input type="search" id="search" placeholder="Search headcode, station, stock…">
+      <span class="chip" id="onlyIssues">Only swaps, turnrounds and drops</span>
+      <span class="muted" id="shown"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Enters</th><th>Leaves</th><th>Headcode</th><th>Operator</th><th>Service</th>
+          <th>From → to</th><th>Stops</th><th>Stock</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="row">
+      <button class="primary" id="installBtn">Build &amp; install</button>
+      <button id="buildBtn">Build only</button>
+      <span class="muted">Needs <b>Settings › Advanced › Enable Mods</b> in the game. Restart the game after installing.</span>
+    </div>
+    <div class="log" id="log" style="margin-top:12px" hidden></div>
+  </section>
+
+  <section class="panel">
+    <h3 style="margin:0 0 8px;font-size:14px">Installed mods</h3>
+    <div class="muted" id="modFolder"></div>
+    <ul id="mods"></ul>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let routes = [], data = null, opFilter = new Set(), onlyIssues = false, polling = null;
+
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function short(marker) { return String(marker ?? "").replace(/^Portal - /, "").replace(/ Platform /, " P"); }
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const body = await r.json();
+  if (!r.ok) throw new Error(body.error || r.statusText);
+  return body;
+}
+
+async function init() {
+  routes = await api("/api/routes");
+  $("route").innerHTML = routes.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join("");
+  $("route").onchange = fillPatterns;
+  fillPatterns();
+  loadMods();
+}
+
+function fillPatterns() {
+  const route = routes.find(r => r.id === $("route").value);
+  $("pattern").innerHTML = route.patterns.map(p => `<option value="${p.id}">${esc(p.title)}</option>`).join("");
+  $("pattern").onchange = showNotes;
+  showNotes();
+}
+
+function showNotes() {
+  const route = routes.find(r => r.id === $("route").value);
+  const p = route.patterns.find(x => x.id === $("pattern").value);
+  $("patternNotes").textContent = p ? `${p.description} ${p.services} service patterns. ${p.notes}` : "No patterns for this route yet.";
+}
+
+async function preview() {
+  $("previewBtn").disabled = true;
+  $("previewBtn").textContent = "Planning…";
+  try {
+    data = await api(`/api/preview?route=${$("route").value}&pattern=${$("pattern").value}`);
+    opFilter = new Set();
+    render();
+    $("previewPanel").hidden = false;
+  } catch (e) { alert(e.message); }
+  $("previewBtn").disabled = false;
+  $("previewBtn").textContent = "Preview";
+}
+
+function render() {
+  const rows = data.rows;
+  const kept = rows.filter(r => r.status !== "dropped");
+  const swapped = rows.filter(r => r.notes.some(n => n.includes("not installed"))).length;
+  const turns = rows.filter(r => r.status === "turnround").length;
+  const drivable = kept.filter(r => r.drivable).length;
+  $("stats").innerHTML = [
+    ["Trains", kept.length], ["Drivable", drivable], ["Turn round on the route", turns],
+    ["Stock swapped", swapped], ["Dropped", rows.length - kept.length], ["Operators", Object.keys(data.operators).length],
+  ].map(([k, v]) => `<div class="stat"><span class="muted">${k}</span><b>${v}</b></div>`).join("");
+  $("problems").innerHTML = data.problems.map(p => `<li>${esc(p.pattern)}: ${esc(p.message)}</li>`).join("");
+  $("operators").innerHTML = Object.entries(data.operators).sort((a, b) => b[1].trains - a[1].trains)
+    .map(([op, s]) => `<span class="chip ${opFilter.has(op) ? "on" : ""}" data-op="${esc(op)}">${esc(op)}<span class="n">${s.trains}</span></span>`).join("");
+  document.querySelectorAll("#operators .chip").forEach(c => c.onclick = () => {
+    const op = c.dataset.op; opFilter.has(op) ? opFilter.delete(op) : opFilter.add(op); render();
+  });
+  $("onlyIssues").classList.toggle("on", onlyIssues);
+  const q = $("search").value.trim().toLowerCase();
+  const shown = rows.filter(r => (!opFilter.size || opFilter.has(r.operator))
+    && (!onlyIssues || r.notes.length || r.status !== "ok")
+    && (!q || JSON.stringify(r).toLowerCase().includes(q)));
+  $("shown").textContent = `${shown.length} shown`;
+  $("rows").innerHTML = shown.slice(0, 1500).map(r => {
+    const tags = [];
+    if (r.status === "dropped") tags.push(`<span class="tag bad">dropped</span>`);
+    else if (r.status === "turnround") tags.push(`<span class="tag ok">turns round from ${esc(r.follows)}</span>`);
+    if (r.notes.some(n => n.includes("not installed"))) tags.push(`<span class="tag warn">swapped</span>`);
+    if (r.drivable) tags.push(`<span class="tag">drivable</span>`);
+    return `<tr><td class="t">${r.start}</td><td class="t">${r.end}</td><td class="hc">${esc(r.headcode)}</td>
+      <td>${esc(r.operator)}</td><td>${esc(r.name)}</td><td>${esc(short(r.from))} → ${esc(short(r.to))}</td>
+      <td class="stops">${esc(r.stops.join(", "))}</td><td>${esc(r.stock)}</td>
+      <td>${tags.join("")}${r.notes.length ? `<div class="muted">${esc(r.notes.join("; "))}</div>` : ""}</td></tr>`;
+  }).join("");
+}
+
+async function build(install) {
+  $("installBtn").disabled = $("buildBtn").disabled = true;
+  $("log").hidden = false;
+  $("log").textContent = "Starting…";
+  try {
+    await api("/api/build", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({route: $("route").value, pattern: $("pattern").value, install})});
+    polling = setInterval(poll, 1500);
+  } catch (e) { $("log").textContent = e.message; $("installBtn").disabled = $("buildBtn").disabled = false; }
+}
+
+async function poll() {
+  const s = await api("/api/status");
+  $("log").textContent = s.log.join("\n") + (s.error ? `\nERROR: ${s.error}` : "")
+    + (s.result ? `\n\n${s.result.trains} trains, ${s.result.mb} MB${s.result.installed ? `, installed to ${s.result.installed}` : `: ${s.result.pak}`}` : "");
+  $("log").scrollTop = $("log").scrollHeight;
+  if (!s.running) {
+    clearInterval(polling);
+    $("installBtn").disabled = $("buildBtn").disabled = false;
+    loadMods();
+  }
+}
+
+async function loadMods() {
+  const m = await api("/api/mods");
+  $("modFolder").textContent = m.folder;
+  $("mods").innerHTML = m.mods.length ? m.mods.map(x => `<li>${esc(x.file)} <span class="muted">${x.mb} MB, ${esc(x.modified)}</span></li>`).join("")
+    : `<li class="muted">None</li>`;
+}
+
+$("previewBtn").onclick = preview;
+$("installBtn").onclick = () => build(true);
+$("buildBtn").onclick = () => build(false);
+$("search").oninput = () => data && render();
+$("onlyIssues").onclick = () => { onlyIssues = !onlyIssues; data && render(); };
+init();
+</script>
+</body>
+</html>
