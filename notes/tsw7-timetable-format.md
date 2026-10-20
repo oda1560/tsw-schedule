@@ -107,9 +107,19 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
   supports (262 on Crewe - Milton Keynes).
 - Planner: per train, the template run of that path nearest in time of day; stock = first preference whose
   vehicles' plugins are installed (`engine/ownership.py`, cached in build/installed_plugins.json).
-- Units: portal entries get a new Initial formation in the vault; trains starting on the route take over an
-  earlier train's unit of the same stock that ended there (same platform, else same station; >= 8 min), else a
-  start-of-day position from Dovetail's own day (once each, departures before 09:00 only), else dropped.
+- Units: portal entries take back the unit of an earlier train of the same stock that left at a portal (the
+  longest-waiting one; at least 20 min away and no less than Dovetail's shortest gap for that portal pair), else
+  a new Initial formation in the vault; trains starting on the route take over an earlier train's unit of the
+  same stock that ended there (same platform, else same station; >= 8 min), else a start-of-day position from
+  Dovetail's own day (once each, departures before 09:00 only), else dropped.
+- **Unit count matters.** Dovetail's day uses 191 units (1,828 vehicles) for 2,410 services. A unit per portal
+  entry gave 1,509 units (~10k vehicles) on the busy day: it froze at the loading screen (0% CPU, no crash).
+  With vault reuse: typical 226 units / 1,845 vehicles, busy 321 / 2,831.
+- Leading end after a vault trip (Dovetail's 990 trips): set per exit/entry portal pair and stock, e.g. Bletchley
+  Up Fast -> Down Fast swaps (80/84), To Northampton -> From Long Buckby keeps (54/54); some pairs depend on
+  stock (Manchester: 323s swap, TfW 150/153s keep) and some are mixed even for one stock (Bletchley slow:
+  350/1 8-car 30 kept, 32 swapped). We reuse a unit only where the stock's record
+  (>= 3 trips) or the pair's (>= 10) is >= 90% one way. Turnrounds on the route always swap ends.
 - Every vehicle gets a new GUID registered in CompiledRVMap (a unit keeps its ids through its chain).
 - Recorded runs stay raw bytes (`engine/tracks.py`): each layer's data track is copied (same name table) with
   only the new services' recordings, Times patched in place. Layers are kept (RequiredDLC cleared), so they can
