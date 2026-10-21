@@ -117,6 +117,12 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
   390 is never put in a 4-car space). Many sit on siding/depot ribbons with no instruction marker; they're named
   after their first train's first stop. Early empty runs from depots (Oxley via Bilbrook, Canton) feed stations
   that have no fitting position.
+- Layer `RequiredDLC` holds plugin names (e.g. `CCC_TFW_Class150`, `AABS_Class350_2`), and Dovetail uses it to
+  bring in trains from other packs (Birmingham - Crewe's TFW layer lists the Cardiff 150/153; Crewe - MK's WMR-350
+  layer lists the Birmingham pack's 350/2 and 350/3). With every layer's list cleared, our Birmingham - Crewe
+  timetables offered only the 390, 170 and 66 in the menu: the route-pack 350 and the Cardiff pack's 150 were not
+  listed (Dovetail's own timetable still offered the 350). Each kept layer now lists the plugins of the stock our
+  trains in it use (all installed, since the planner only picks owned stock).
 - New vault units copy SpawnLocation / InitialFormationRange / SpawnFacing from the route's own vault formation
   for that entry (the template's own starting formation if it has one, else one whose train enters the same way,
   preferring an all-zero ribbon = no track position). Copying the first vault formation for every unit gave

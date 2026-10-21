@@ -495,13 +495,20 @@ def write_timetable(tt, plans, generator, master_track, out_dir, track_ref, titl
     set_prop(props, "TimetableName", text(f"{title_key}_Name", title), "TextProperty")
     set_prop(props, "TimetableDescription", text(f"{title_key}_Description", description), "TextProperty")
 
-    # Layers: keep those the new services use, each pointing at our copy of its data track, needing no DLC
-    # (the stock may have been swapped for something installed).
+    # Layers: keep those the new services use, each pointing at our copy of its data track. A layer's RequiredDLC
+    # names the plugins its trains need; the menu offers a train only when its layer declares it (an empty list
+    # hid the route-pack Class 350 and the Cardiff pack's 150 on Birmingham - Crewe), so each layer lists the
+    # plugins of the stock our trains in it use (always installed: the planner only picks owned stock), not
+    # Dovetail's list, which may name stock that was swapped for something the player owns.
     written = []
     by_layer = {}
     for layer, name, template, delta in track_items:
         by_layer.setdefault(layer, []).append((name, template, delta))
     used = {str(s["LayerName"]) for s in services}
+    layer_plugins = {}
+    for p in report:
+        for s in p.template.services:
+            layer_plugins.setdefault(str(s.get("LayerName", "None")), set()).update(generator.stock_plugins(p.stock))
     kept = []
     for layer_struct in props["Layers"].items:
         layer = str(layer_struct["Name"])
@@ -517,7 +524,7 @@ def write_timetable(tt, plans, generator, master_track, out_dir, track_ref, titl
         layer_struct.prop("DataTrack").value = SoftObject(FName(track_ref(original)), Str(""))
         required = layer_struct.prop("RequiredDLC")
         if required is not None:
-            required.value.items = []
+            required.value.items = [FName(plugin) for plugin in sorted(layer_plugins.get(layer, ()))]
     props.prop("Layers").value.items = kept
 
     # Master data track: an empty copy (its junction recording belongs to the original day).
