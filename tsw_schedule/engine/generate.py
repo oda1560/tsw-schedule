@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from .props import (Array, Encoder, FName, MapValue, Native, Prop, Raw, SoftObject, Str, Struct, Text,
                     decode_export, encode_export, names_used, timespan_value_offsets)
 from .package import EditablePackage, fstring_bytes
-from .runs import is_portal
+from .runs import enum_value, is_portal
 
 CLOCK_FIELDS = {"StartTime", "SimulatedStartTime", "ArrivalTime", "SimulatedArrivalTime", "CompletionTime",
                 "SimulatedCompletionTime", "Time"}
@@ -115,6 +115,20 @@ def text_source(t):
 FRONT, BACK = "ESide::Front", "ESide::Back"
 
 
+def vault_entry(service):
+    """(first stop, backs out of it?) of a service that brings a unit out of the vault."""
+    goto = next((i for i in service["Instructions"].items if enum_value(i["InstructionType"]) == "GoTo"), None)
+    if goto is None:
+        return None, False
+    return str(goto["Destination"]["Name"]), bool(goto.get("bReverseFromPortal", False))
+
+
+def has_position(formation):
+    """True when a formation names a place on the track (vault units normally have an all-zero ribbon)."""
+    loc = formation.get("SpawnLocation")
+    return loc is not None and any(loc["RibbonReference"].raw)
+
+
 def leading_side(service):
     """Which end of the unit's vehicle list leads (and is driven from) in this service. A unit's vehicle list
     never changes through its day; services say which end leads, so it flips each time the train reverses."""
@@ -170,6 +184,15 @@ class Generator:
                 self.spawn_points[label] = head
                 self.spawn_markers[label] = run.start_marker
                 self.spawn_sides[label] = leading_side(run.services[0])
+        # How the route's own day starts units in the vault, by how their first train enters (stop, backs out of the
+        # portal?): its Initial vault formations, those without a track position first.
+        self.vault_starts = collections.defaultdict(list)
+        for svc in timetable.services:
+            f = timetable.formations.get(str(svc["FormationName"]))
+            if f is not None and str(f["FormationType"]).endswith("Initial") and f.get("bSpawnInVault", False):
+                self.vault_starts[vault_entry(svc)].append(f)
+        for starts in self.vault_starts.values():
+            starts.sort(key=has_position)
         # How the route's own day brings units back out of the vault: for each (exit portal, entry portal), per
         # stock and over all stock, how often the unit came back leading with the same end or the other one, and
         # how long it stayed away.
@@ -249,6 +272,20 @@ class Generator:
         p.shift_s += p.template.start_s - alt.start_s
         p.template = alt
         return True
+
+    def vault_template(self, run):
+        """The route's own vault formation to copy a new unit's spawn fields from: the template run's own starting
+        formation when it is one, else one whose train enters the same way, else any without a track position.
+        (Copying one formation for every unit gave Birmingham - Crewe a real track position for all of them; the
+        game crashed loading that timetable.)"""
+        head = self.tt.formations.get(str(run.services[0]["FormationName"]))
+        if head is not None and str(head["FormationType"]).endswith("Initial") and head.get("bSpawnInVault", False):
+            return head
+        same = self.vault_starts.get(vault_entry(run.services[0]))
+        if same:
+            return same[0]
+        plain = [f for starts in self.vault_starts.values() for f in starts if not has_position(f)]
+        return plain[0] if plain else next((f for starts in self.vault_starts.values() for f in starts), None)
 
     def spawn_point_for(self, p, marker, taken):
         """A free start-of-day position for p's unit: one at marker, else another at the same station; only where the
@@ -416,8 +453,7 @@ class Generator:
         f.prop("RailVehicleInfo").value.items = p.vehicles
         if run.start_kind == "portal":
             set_prop(f, "bSpawnInVault", True, "BoolProperty")
-            vault = next((x for x in self.tt.formations.values() if str(x["FormationType"]).endswith("Initial")
-                          and x.get("bSpawnInVault", False)), None)
+            vault = self.vault_template(run)
             for field_name in ("SpawnLocation", "InitialFormationRange", "SpawnFacing"):
                 if vault is not None and vault.prop(field_name) is not None:
                     f.props = [q for q in f.props if q.name.text != field_name] + [copy.deepcopy(vault.prop(field_name))]

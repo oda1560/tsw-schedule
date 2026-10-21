@@ -117,6 +117,13 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
   390 is never put in a 4-car space). Many sit on siding/depot ribbons with no instruction marker; they're named
   after their first train's first stop. Early empty runs from depots (Oxley via Bilbrook, Canton) feed stations
   that have no fitting position.
+- New vault units copy SpawnLocation / InitialFormationRange / SpawnFacing from the route's own vault formation
+  for that entry (the template's own starting formation if it has one, else one whose train enters the same way,
+  preferring an all-zero ribbon = no track position). Copying the first vault formation for every unit gave
+  Birmingham - Crewe 141 units all positioned near Heath Town (its first vault formation has a real position) and
+  the Oxley empty runs, which back out of Portal - From Bilbrook, faced Forwards where Dovetail's face Backwards:
+  the game crashed every time that timetable loaded (EXCEPTION_ACCESS_VIOLATION reading 0xa8, during
+  LoadTimetableService). The crash report's GameData section names the timetable and player service.
 - A unit turning round (or spawned) at another platform than the template's start gets the route's run of the
   same journey from that platform instead (nearest in time of day; departure time kept), so it leaves from where
   it stands rather than crossing the station first.
