@@ -245,7 +245,7 @@
      "times": {"from": "06:43", "to": "21:43", "every": 60}, "drivable": true},
 
     {"id": "emr-crewe-derby", "operator": "East Midlands Railway", "name": "Crewe to Derby / Newark",
-     "path": {"from": "Crewe", "stops": ["Alsager"], "to": "Alsager"},
+     "path": {"from": "Crewe", "stops": [], "to": "Alsager"},
      "stock": ["158"], "headcode": "1N", "first": 3, "step": 2,
      "times": {"from": "06:15", "to": "22:15", "every": 60}, "drivable": true},
     {"id": "emr-derby-crewe", "operator": "East Midlands Railway", "name": "Derby / Newark to Crewe",

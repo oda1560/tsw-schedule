@@ -12,6 +12,8 @@ A pattern file (JSON) has a stock table (tokens like "390" -> TrainEntry paths, 
 stopping stations in order, exit portal or final station. `times` are when the train enters the route (at
 "entry": appears at its portal or leaves its first station) or when it leaves/passes the station named in `at`.
 `same_headcodes_as` reuses another pattern's headcodes in order (one train in two parts on the route).
+`turn` (minutes) is the least time a train starting at a station needs to take over a unit that ended there
+(default 8; 0 for a shuttle whose unit leaves again as soon as it arrives, as on single-platform branches).
 """
 import json
 import os
@@ -119,6 +121,8 @@ class Planner:
                 mine.append(hc)
                 plan = PlannedTrain(hc, run, t - ref, stock, spec.get("name"), spec.get("drivable"), pattern=sid)
                 plan.operator = spec.get("operator", "")
+                if "turn" in spec:
+                    plan.turn_s = float(spec["turn"]) * 60
                 plan.stock_token = token
                 if substituted:
                     plan.notes.append(f"{spec['stock'][0]} not installed: runs as {token}")

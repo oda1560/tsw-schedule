@@ -34,13 +34,14 @@ class PlannedTrain:
     stock: str                  # TrainEntry path
     friendly_name: str = None   # menu name; default: template's with the headcode replaced
     drivable: bool = None       # default: as the template
+    turn_s: float = None        # least time to take over a unit that ended where it starts (default: place_units')
     pattern: str = ""           # which pattern produced it (for reports)
     follows: "PlannedTrain" = None
     spawn_at: str = None        # start-of-day position (marker) when the unit starts the day on the route
     dropped: str = None         # why it couldn't be placed, if so
     last_side: str = None       # leading end of the unit at the end of this train (for a turnaround after it)
     via_vault: bool = False     # its unit is an earlier train's, back out of the vault
-    vault_flip: bool = False    # ... and leads with the other end than the one it left with
+    vault_flip: bool = None     # ... and leads with the other end than the one it left with (None: as the template)
     # filled by the generator
     service_names: list = field(default_factory=list)
     end_formation: str = None
@@ -154,14 +155,21 @@ class Generator:
         for f in timetable.formations.values():
             if str(f["FormationType"]).endswith("Initial") and f.get("TrainEntry") is not None:
                 self.donors.setdefault(str(f["TrainEntry"].path), f)
-        self.spawn_points = {}  # start marker -> Initial formation of a unit that starts the day there
-        self.spawn_sides = {}   # start marker -> leading side of the route's own first train from there
+        # Start-of-day positions: one per unit the route's own day places on the route, named after the marker its
+        # first train starts from ("Crewe Platform 3", "Crewe Platform 3 #2" for a second unit there).
+        self.spawn_points = {}  # position -> Initial formation of a unit that starts the day there
+        self.spawn_markers = {}  # position -> that marker
+        self.spawn_sides = {}   # position -> leading side of the route's own first train from there
         for run in timetable.runs:
             head = timetable.formations.get(str(run.services[0]["FormationName"]))
             if (run.start_kind == "location" and head is not None and str(head["FormationType"]).endswith("Initial")
-                    and not head.get("bSpawnInVault", False) and run.start_marker not in self.spawn_points):
-                self.spawn_points[run.start_marker] = head
-                self.spawn_sides[run.start_marker] = leading_side(run.services[0])
+                    and not head.get("bSpawnInVault", False)):
+                label, n = run.start_marker, 2
+                while label in self.spawn_points:
+                    label, n = f"{run.start_marker} #{n}", n + 1
+                self.spawn_points[label] = head
+                self.spawn_markers[label] = run.start_marker
+                self.spawn_sides[label] = leading_side(run.services[0])
         # How the route's own day brings units back out of the vault: for each (exit portal, entry portal), per
         # stock and over all stock, how often the unit came back leading with the same end or the other one, and
         # how long it stayed away.
@@ -221,11 +229,42 @@ class Generator:
         waits = self.vault_waits.get((exit_marker, entry_marker))
         return max(least_s, min(waits)) if waits else least_s
 
+    def template_from(self, run, marker):
+        """The route's run of the same journey as run that starts from marker instead (nearest in time of day),
+        or None, so a unit can leave from the platform it is standing at."""
+        from .runs import path_key
+        if not hasattr(self, "_path_runs"):
+            self._path_runs = collections.defaultdict(list)
+            for r in self.tt.runs:
+                if not r.complex:
+                    self._path_runs[path_key(r)].append(r)
+        options = [r for r in self._path_runs[path_key(run)] if r.start_marker == marker]
+        return min(options, key=lambda r: abs(r.start_s - run.start_s), default=None)
+
+    def retemplate(self, p, marker):
+        """Run p from marker if the route has that journey from there, keeping its departure time."""
+        alt = self.template_from(p.template, marker)
+        if alt is None:
+            return False
+        p.shift_s += p.template.start_s - alt.start_s
+        p.template = alt
+        return True
+
+    def spawn_point_for(self, p, marker, taken):
+        """A free start-of-day position for p's unit: one at marker, else another at the same station; only where the
+        route's own day placed a train at least as long (in vehicles), so ours fits the space."""
+        from .runs import station_of
+        length = len(self.donors[p.stock]["RailVehicleInfo"].items)
+        options = [m for m in self.spawn_points if m not in taken
+                   and station_of(self.spawn_markers[m]) == station_of(marker)
+                   and len(self.spawn_points[m]["RailVehicleInfo"].items) >= length]
+        options.sort(key=lambda m: (self.spawn_markers[m] != marker, m))
+        return options[0] if options else None
+
     # -- generation ----------------------------------------------------------------------------------------------
     def place_units(self, plans, min_turn_s=8 * 60, latest_spawn_s=9 * 3600, min_vault_s=20 * 60):
         """Where each train's unit comes from. Entering from a portal: the unit of an earlier train of the same
-        stock that left the route long enough ago, back out of the vault (only between portals where the route's
-        own day shows which end then leads), else a new unit in the vault. Starting on the route: the unit of an
+        stock that left the route long enough ago, back out of the vault, else a new unit in the vault. Starting on the route: the unit of an
         earlier train of the same stock that ended there (same platform first, then same station; enough time to
         turn round), else, for the morning's first departures, a start-of-day position known from the route's own
         timetable (each used once; a unit placed there waits until it leaves), else the train is dropped."""
@@ -240,8 +279,7 @@ class Generator:
                 # day needs a few hundred units rather than one per train; the game can't load a unit per train
                 # on a busy day.
                 ready = [q for q in vault if q.stock == p.stock
-                         and q.end_s + self.vault_wait(q.template.end_marker, run.start_marker, min_vault_s) <= p.start_s
-                         and self.vault_flip(q.template.end_marker, run.start_marker, p.stock) is not None]
+                         and q.end_s + self.vault_wait(q.template.end_marker, run.start_marker, min_vault_s) <= p.start_s]
                 pick = min(ready, key=lambda q: q.end_s, default=None)
                 if pick is not None:
                     p.follows = pick
@@ -249,7 +287,8 @@ class Generator:
                     p.vault_flip = self.vault_flip(pick.template.end_marker, run.start_marker, p.stock)
                     vault.remove(pick)
             if run.start_kind == "location" and p.follows is None:
-                ready = [q for q in free if q.end_s + min_turn_s <= p.start_s and q.stock == p.stock]
+                turn = min_turn_s if p.turn_s is None else p.turn_s
+                ready = [q for q in free if q.end_s + turn <= p.start_s and q.stock == p.stock]
                 same_platform = [q for q in ready if q.template.end_marker == run.start_marker]
                 same_station = [q for q in ready if station_of(q.template.end_marker) == station_of(run.start_marker)]
                 pick = max(same_platform or same_station, key=lambda q: q.end_s, default=None)
@@ -257,15 +296,22 @@ class Generator:
                     p.follows = pick
                     free.remove(pick)
                     if pick.template.end_marker != run.start_marker:
-                        p.notes.append(f"turns round at {pick.template.end_marker} (pattern starts at "
-                                       f"{run.start_marker})")
+                        if self.retemplate(p, pick.template.end_marker):
+                            run = p.template
+                        else:
+                            p.notes.append(f"turns round at {pick.template.end_marker} (pattern starts at "
+                                           f"{run.start_marker})")
                     if pick.stock != p.stock:
                         p.notes.append(f"uses {pick.headcode}'s unit")
                         p.stock = pick.stock
-                elif (run.start_marker in self.spawn_points and run.start_marker not in spawned
-                      and p.start_s <= latest_spawn_s):
-                    p.spawn_at = run.start_marker
-                    spawned.add(run.start_marker)
+                elif p.start_s <= latest_spawn_s and self.spawn_point_for(p, run.start_marker, spawned):
+                    p.spawn_at = self.spawn_point_for(p, run.start_marker, spawned)
+                    spawned.add(p.spawn_at)
+                    if self.spawn_markers[p.spawn_at] != run.start_marker:
+                        if self.retemplate(p, self.spawn_markers[p.spawn_at]):
+                            run = p.template
+                        else:
+                            p.notes.append(f"starts the day at {p.spawn_at} (pattern starts at {run.start_marker})")
                 else:
                     p.dropped = f"no train available at {run.start_marker} (nothing arrives there before it)"
                     continue
@@ -304,12 +350,15 @@ class Generator:
 
             # Which end of our unit leads. The template's sides suit its own unit's vehicle order; ours may be the
             # other way round, so flip them all when needed: a turnaround leaves with the end that arrived last;
-            # a unit back from the vault keeps or swaps ends as the route's own day does between those portals;
+            # a unit back from the vault keeps or swaps ends as the route's own day does between those portals
+            # (where it is clear; Dovetail's own vault trips follow no fixed rule, so else as the template says);
             # a unit placed at the start of the day leads like the route's own first train from that spot; a new
             # one in the vault leads as the template says. Wrong sides put the driver in a cab in the middle.
             first_side = leading_side(run.services[0])
-            if p.via_vault:
+            if p.via_vault and p.vault_flip is not None:
                 wanted = other_side(p.follows.last_side) if p.vault_flip else p.follows.last_side
+            elif p.via_vault:
+                wanted = first_side  # the route's own day doesn't say: lead as a new unit from the vault would
             elif p.follows is not None and p.follows.last_side is not None:
                 wanted = other_side(p.follows.last_side)
             elif p.spawn_at is not None:
@@ -379,7 +428,8 @@ class Generator:
                 if spawn.prop(field_name) is not None:
                     f.props = [q for q in f.props if q.name.text != field_name] + \
                               [copy.deepcopy(spawn.prop(field_name))]
-            p.notes.append(f"starts the day at {p.spawn_at}")
+            if not any(n.startswith("starts the day") for n in p.notes):
+                p.notes.append(f"starts the day at {p.spawn_at}")
         return f
 
     def end_formation(self, template_service, service_name, name, p):

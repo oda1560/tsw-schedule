@@ -37,8 +37,9 @@ def ensure_extracted(route, rels, log):
     for f in missing:
         dest = os.path.join(EXTRACTED, f)
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-        with open(dest, "wb") as out:
+        with open(dest + ".part", "wb") as out:  # renamed when complete, so a stopped run leaves no broken file
             out.write(pak.extract(f))
+        os.replace(dest + ".part", dest)
 
 
 class RouteSession:
@@ -92,7 +93,7 @@ class RouteSession:
         for p in plans:  # re-point plans at the fresh copy's runs (same order)
             p.template = tt.runs[self.tt.runs.index(p.template)]
             p.follows, p.spawn_at, p.dropped, p.last_side = None, None, None, None
-            p.via_vault = p.vault_flip = False
+            p.via_vault, p.vault_flip = False, None
             p.notes = [n for n in p.notes if "not installed" in n]
         names = ModNames(mod_name, f"{os.path.basename(self.timetable_path)[:-len('.uasset')]}_{mod_name}")
         gen_dir = os.path.join(BUILD, "gen", mod_name)

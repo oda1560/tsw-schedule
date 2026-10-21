@@ -110,21 +110,40 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
 - Units: portal entries take back the unit of an earlier train of the same stock that left at a portal (the
   longest-waiting one; at least 20 min away and no less than Dovetail's shortest gap for that portal pair), else
   a new Initial formation in the vault; trains starting on the route take over an earlier train's unit of the
-  same stock that ended there (same platform, else same station; >= 8 min), else a start-of-day position from
-  Dovetail's own day (once each, departures before 09:00 only), else dropped.
+  same stock that ended there (same platform, else same station; >= 8 min, or a pattern's `turn` minutes, e.g.
+  0 for the single-platform Cardiff Bay shuttle), else a start-of-day position, else dropped.
+- Start-of-day positions: every non-vault Initial formation of Dovetail's day (several per marker, "Crewe Platform
+  3 #2"), each used once, departures before 09:00, only where Dovetail's unit had at least as many vehicles (so a
+  390 is never put in a 4-car space). Many sit on siding/depot ribbons with no instruction marker; they're named
+  after their first train's first stop. Early empty runs from depots (Oxley via Bilbrook, Canton) feed stations
+  that have no fitting position.
+- A unit turning round (or spawned) at another platform than the template's start gets the route's run of the
+  same journey from that platform instead (nearest in time of day; departure time kept), so it leaves from where
+  it stands rather than crossing the station first.
 - **Unit count matters.** Dovetail's day uses 191 units (1,828 vehicles) for 2,410 services. A unit per portal
   entry gave 1,509 units (~10k vehicles) on the busy day: it froze at the loading screen (0% CPU, no crash).
-  With vault reuse: typical 226 units / 1,845 vehicles, busy 321 / 2,831.
-- Leading end after a vault trip (Dovetail's 990 trips): set per exit/entry portal pair and stock, e.g. Bletchley
-  Up Fast -> Down Fast swaps (80/84), To Northampton -> From Long Buckby keeps (54/54); some pairs depend on
-  stock (Manchester: 323s swap, TfW 150/153s keep) and some are mixed even for one stock (Bletchley slow:
-  350/1 8-car 30 kept, 32 swapped). We reuse a unit only where the stock's record
-  (>= 3 trips) or the pair's (>= 10) is >= 90% one way. Turnrounds on the route always swap ends.
+  With vault reuse: Crewe - MK 83 / 106 units, Birmingham - Crewe 114 / 143 (Dovetail 220), Cardiff 38 / 47
+  (Dovetail 78) for typical / busy.
+- Leading end after a vault trip: Dovetail's own day follows no fixed rule (a per-portal direction model fits its
+  freight 98-99% but its multiple units only 68-78%; e.g. Bletchley Up Fast -> Down Fast swaps 80/84, To
+  Northampton -> From Long Buckby keeps 54/54, Bletchley slow 350/1 8-car 30 kept / 32 swapped). Where the stock's
+  record (>= 3 trips) or the pair's (>= 10) is >= 90% one way we follow it; otherwise the unit leads as the
+  template says, exactly like a new unit from the vault. Turnrounds on the route always swap ends.
+- Portals are not always named "Portal - ...": Birmingham - Crewe has "Trent Valley Up Fast", "To/From
+  Lichfield", "Bilbrook 1/2", "Up/Down Heath Town Portal", "Down/Up Grand Jct (Bushbury)", "Langley Green 1/2",
+  and both routes treat "Alsager" as a portal. `runs.vault_markers` finds them from the data: the last stop of
+  services whose end formation is bSpawnInVault, and the first stop of services whose start formation is.
 - Every vehicle gets a new GUID registered in CompiledRVMap (a unit keeps its ids through its chain).
 - Recorded runs stay raw bytes (`engine/tracks.py`): each layer's data track is copied (same name table) with
   only the new services' recordings, Times patched in place. Layers are kept (RequiredDLC cleared), so they can
   still be toggled in the menu; the master data track is an empty copy.
 - Crewe - Milton Keynes typical weekday: 64 patterns -> 1,177 trains, 359 MB mod, built in ~50 s.
+- Birmingham - Crewe (`GJL_Gameplay/Timetable/GJR_Weekday_TT`, Dovetail's "2019 Timetable", 2,100 services,
+  manifest in the `BirminghamCrewe` plugin) and Cardiff City Network (`CardiffNetwork_Route_Gameplay/Timetable/
+  CCC_Timetable_TT`; `_Gen8` is a lighter console copy; the pak's one AssetRegistry.bin sits in the
+  `CCC_TFW_Class153` plugin). Pattern minutes past the hour come from Dovetail's own runs.
+- Extraction writes `<file>.part` and renames it when complete: a stopped build once left zero-filled data
+  tracks that later passed the "already extracted" check.
 - App: `python -m tsw_schedule.app` (http://localhost:8765): preview, build, build & install.
 
 ## Runtime (UE4SS reflection, TrainSimWorld.exe)

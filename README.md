@@ -5,9 +5,14 @@ standard pattern (trains per hour by operator, first/last trains, freight paths)
 runs of the route's own timetable, with stock the player owns. The new timetable appears next to Dovetail's in the
 game's Timetable menu, and you pick your service from the game's own list.
 
-First route: **Crewe - Milton Keynes** (WCML Trent Valley), with two options:
-- **typical weekday** (`crewe-mk-typical`): ~1,180 trains, a standard-hour pattern;
-- **busy weekday** (`crewe-mk-busy`): ~1,870 trains, peak-level frequencies all day and more freight.
+Routes, each with a **typical weekday** (a standard-hour pattern) and a **busy weekday** (peak-level frequencies
+all day, more freight):
+
+| Route | Typical | Busy |
+|---|---|---|
+| **Crewe - Milton Keynes** (WCML Trent Valley) | `crewe-mk-typical`, ~1,180 trains | `crewe-mk-busy`, ~1,870 trains |
+| **Birmingham - Crewe** | `bham-crewe-typical`, ~1,260 trains | `bham-crewe-busy`, ~1,590 trains |
+| **Cardiff City Network** | `cardiff-typical`, ~740 trains | `cardiff-busy`, ~920 trains |
 
 ## Using it
 ```
@@ -19,7 +24,9 @@ mode. Each option is its own mod (`TSWS_<Option>.pak`), so several can be instal
 
 To take one out of the game, press **Remove** next to it in the app (it moves to `build\removed-mods`, so it can
 be put back), or delete the `.pak` from `Documents\My Games\TrainSimWorld7\Saved\UserContent` with the game
-closed. Command line: `python -m tsw_schedule.build crewe-mk --pattern crewe-mk-busy [--install]`.
+closed. Command line: `python -m tsw_schedule.build <route> --pattern <option> [--install]`, e.g.
+`python -m tsw_schedule.build cardiff --pattern cardiff-busy --install` (routes: `crewe-mk`, `bham-crewe`,
+`cardiff`).
 
 ## How it works
 - `tsw_schedule/engine/`: reads and writes TSW7's cooked timetable assets losslessly (`props.py`, `package.py`),

@@ -1376,9 +1376,7 @@
       "name": "Crewe to Derby / Newark",
       "path": {
         "from": "Crewe",
-        "stops": [
-          "Alsager"
-        ],
+        "stops": [],
         "to": "Alsager"
       },
       "stock": [

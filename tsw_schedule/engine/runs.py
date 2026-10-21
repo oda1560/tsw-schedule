@@ -27,8 +27,28 @@ def headcode(service_name):
     return m.group(1) if m else service_name
 
 
-def is_portal(marker):
-    return marker is not None and marker.startswith("Portal")
+def is_portal(marker, portals=()):
+    """A route edge: named "Portal - ..." on most routes, or one of the timetable's own portals (vault_markers)."""
+    return marker is not None and (marker.startswith("Portal") or marker in portals)
+
+
+def vault_markers(tt):
+    """Markers where units leave or join the route, whatever they're called ('Trent Valley Up Fast', 'To
+    Lichfield', 'Alsager'): the last stop of services that leave their unit in the vault, and the first stop of
+    services whose unit comes out of it."""
+    out = set()
+    for s in tt.services:
+        gotos = [i for i in s["Instructions"].items if enum_value(i["InstructionType"]) == "GoTo"]
+        if not gotos:
+            continue
+        end = tt.formations.get(str(s["EndOfServiceFormationName"]))
+        if end is not None and end.get("bSpawnInVault", False):
+            out.add(str(gotos[-1]["Destination"]["Name"]))
+        start = tt.formations.get(str(s["FormationName"]))
+        if start is not None and start.get("bSpawnInVault", False):
+            out.add(str(gotos[0]["Destination"]["Name"]))
+    out.discard("None")
+    return out
 
 
 @dataclass
@@ -88,10 +108,11 @@ class Timetable:
         self.props = self.export.props
         self.services = self.props["Services"].items
         self.formations = {str(f["Name"]): f for f in self.props["Formations"].items}
+        self.portals = vault_markers(self)
         self.runs = build_runs(self)
 
 
-def _instruction_calls(service):
+def _instruction_calls(service, portals=()):
     """Markers visited by a service, in order, with stop flag and simulated times."""
     calls, pending = [], None
     for ins in service["Instructions"].items:
@@ -99,7 +120,8 @@ def _instruction_calls(service):
         if kind == "GoTo":
             marker = str(ins["Destination"]["Name"])
             arrive = ins["SimulatedArrivalTime"].seconds
-            pending = Call(marker, bool(ins.get("bIsStopping", False)) and not is_portal(marker), arrive, arrive)
+            pending = Call(marker, bool(ins.get("bIsStopping", False)) and not is_portal(marker, portals),
+                           arrive, arrive)
             calls.append(pending)
         elif kind == "LoadUnload":
             depart = ins["SimulatedCompletionTime"].seconds
@@ -172,12 +194,12 @@ def build_runs(tt):
 def _split_chain(tt, chain, chain_index, train_entry, in_vault, spawn_marker):
     runs, current, last_marker, last_left_route = [], None, spawn_marker, in_vault
     for s in chain:
-        calls = _instruction_calls(s)
+        calls = _instruction_calls(s, tt.portals)
         hc = headcode(str(s["Name"]))
         first = calls[0].marker if calls else None
         new_run = current is None or hc != current.headcode or last_left_route
         if new_run:
-            start_kind = "portal" if is_portal(first) else "location"
+            start_kind = "portal" if is_portal(first, tt.portals) else "location"
             start_marker = first if start_kind == "portal" else (last_marker or first)
             current = Run(hc, [], chain_index, str(s.get("LayerName", "None")), start_kind, start_marker,
                           "location", None, train_entry=train_entry, start_s=s["StartTime"].seconds)
@@ -193,18 +215,18 @@ def _split_chain(tt, chain, chain_index, train_entry, in_vault, spawn_marker):
                     current.calls[-1].depart_s = max(current.calls[-1].depart_s, c.depart_s)
                 continue
             current.calls.append(c)
-            if not is_portal(c.marker):
+            if not is_portal(c.marker, tt.portals):
                 last_marker = c.marker
         current.player_drivable = current.player_drivable or bool(s.get("bIsPlayerDrivable", False))
         kinds = {enum_value(i["InstructionType"]) for i in s["Instructions"].items}
         if kinds & {"Couple", "Uncouple"}:
             current.complex = "couples or uncouples"
-        last_left_route = bool(calls) and is_portal(calls[-1].marker)
+        last_left_route = bool(calls) and is_portal(calls[-1].marker, tt.portals)
         if calls:
             current.end_s = calls[-1].depart_s
             current.end_kind = "portal" if last_left_route else "location"
             current.end_marker = calls[-1].marker
-            while last_left_route and current.calls and is_portal(current.calls[-1].marker):
+            while last_left_route and current.calls and is_portal(current.calls[-1].marker, tt.portals):
                 current.calls.pop()
     return runs
 
@@ -213,6 +235,7 @@ def station_of(marker):
     """'Crewe Platform 7' -> 'Crewe', 'Stafford 5' -> 'Stafford'; portals and other markers unchanged."""
     if marker is None or is_portal(marker):
         return marker
+    marker = marker.strip()  # some routes name platforms 'Wolverhampton 4 '
     m = re.match(r"^(.*?)(?: Platform)? ?([0-9]+[a-zA-Z]?)$", marker)
     return m.group(1) if m else marker
 
