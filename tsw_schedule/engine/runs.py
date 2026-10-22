@@ -240,6 +240,19 @@ def station_of(marker):
     return m.group(1) if m else marker
 
 
+def arrives_from(run):
+    """The station (or portal) a run ending at a station passed last before it."""
+    markers = [m for m in [run.start_marker] + [c.marker for c in run.calls] if m and m != "None"]
+    return station_of(markers[-2]) if len(markers) >= 2 else None
+
+
+def leaves_towards(run):
+    """The station (or portal) a run starting at a station heads for first."""
+    markers = [c.marker for c in run.calls] + ([run.end_marker] if run.end_kind == "portal" else [])
+    markers = [m for m in markers if m and m != "None"]
+    return station_of(markers[0]) if markers else None
+
+
 def path_key(run):
     return (run.start_marker if run.start_kind == "portal" else station_of(run.start_marker),
             tuple(station_of(c.marker) for c in run.calls if c.stopping),

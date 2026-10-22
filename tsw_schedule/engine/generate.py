@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from .props import (Array, Encoder, FName, MapValue, Native, Prop, Raw, SoftObject, Str, Struct, Text,
                     decode_export, encode_export, names_used, timespan_value_offsets)
 from .package import EditablePackage, fstring_bytes
-from .runs import enum_value, is_portal
+from .runs import arrives_from, enum_value, is_portal, leaves_towards, station_of
 
 CLOCK_FIELDS = {"StartTime", "SimulatedStartTime", "ArrivalTime", "SimulatedArrivalTime", "CompletionTime",
                 "SimulatedCompletionTime", "Time"}
@@ -147,6 +147,38 @@ def set_enum(struct, name, enum_type, value):
     p.value = FName.parse(value)
 
 
+class StationEnds:
+    """Which end of a station each neighbour (the station or portal a train comes from or heads for) lies at,
+    learned from the route's own turnrounds: a unit that leaves by the end it came in at reverses, so the other end
+    leads; one that leaves by the far end carries straight on with the same end leading."""
+
+    def __init__(self):
+        self.parent = {}  # (station, neighbour) -> (parent node, True if at the other end from it)
+
+    def _root(self, node):
+        parent, other = self.parent.setdefault(node, (node, False))
+        if parent == node:
+            return node, False
+        root, parent_other = self._root(parent)
+        self.parent[node] = (root, other != parent_other)
+        return self.parent[node]
+
+    def link(self, station, a, b, same_end):
+        """a and b are at the same end of station (or not); ignored if what is known already says otherwise."""
+        (ra, oa), (rb, ob) = self._root((station, a)), self._root((station, b))
+        if ra != rb:
+            self.parent[ra] = (rb, oa != ob if same_end else oa == ob)
+
+    def same_end(self, station, a, b):
+        """True / False, or None when the route's own day doesn't tell."""
+        if a is not None and a == b:
+            return True
+        if (station, a) not in self.parent or (station, b) not in self.parent:
+            return None
+        (ra, oa), (rb, ob) = self._root((station, a)), self._root((station, b))
+        return oa == ob if ra == rb else None
+
+
 def suffix_of(service_name, headcode):
     """'1U00_AI_2' -> '_AI_2'; descriptive tails ('5W10 0616 Crewe CS to Crewe') are dropped."""
     rest = service_name[len(headcode):]
@@ -196,8 +228,11 @@ class Generator:
         # How the route's own day brings units back out of the vault: for each (exit portal, entry portal), per
         # stock and over all stock, how often the unit came back leading with the same end or the other one, and
         # how long it stayed away.
+        # And how it turns units round at stations: whether the leading end changed, by where the unit came from
+        # and where it went next, which places each station's neighbours at one end or the other.
         self.vault_ends = collections.Counter()
         self.vault_waits = collections.defaultdict(list)
+        turns = collections.defaultdict(collections.Counter)
         chains = collections.defaultdict(list)
         for run in timetable.runs:
             if run.chain >= 0:
@@ -212,6 +247,12 @@ class Generator:
                     self.vault_ends[pair + (flip,)] += 1
                     if b.start_s > a.end_s:
                         self.vault_waits[pair].append(b.start_s - a.end_s)
+                elif a.end_kind == "location" and b.start_kind == "location" and arrives_from(a) and leaves_towards(b):
+                    flip = leading_side(a.services[-1]) != leading_side(b.services[0])
+                    turns[(station_of(a.end_marker), arrives_from(a), leaves_towards(b))][flip] += 1
+        self.station_ends = StationEnds()
+        for (station, came, goes), n in sorted(turns.items(), key=lambda kv: -sum(kv[1].values())):
+            self.station_ends.link(station, came, goes, same_end=n[True] > n[False])  # common moves decide first
 
     # -- stock ---------------------------------------------------------------------------------------------------
     def stock_plugins(self, train_entry):
@@ -246,6 +287,12 @@ class Generator:
                     return True
                 return None
         return None
+
+    def turns_back(self, arrived, leaving):
+        """Whether a unit that came in with run `arrived` reverses to leave with run `leaving`, from the same station:
+        it does unless the route's own day puts where it came from and where it goes at opposite ends."""
+        station = station_of(arrived.end_marker)
+        return self.station_ends.same_end(station, arrives_from(arrived), leaves_towards(leaving)) is not False
 
     def vault_wait(self, exit_marker, entry_marker, least_s):
         """Shortest time away between those portals: the route's own shortest for the pair, at least least_s."""
@@ -386,7 +433,8 @@ class Generator:
                 formations.append(self.initial_formation(p, start_formation))
 
             # Which end of our unit leads. The template's sides suit its own unit's vehicle order; ours may be the
-            # other way round, so flip them all when needed: a turnaround leaves with the end that arrived last;
+            # other way round, so flip them all when needed: a turnaround reverses (leaves with the end that arrived
+            # last) unless it leaves by the station's far end (5F30 -> 1F30 at New Street carries on west);
             # a unit back from the vault keeps or swaps ends as the route's own day does between those portals
             # (where it is clear; Dovetail's own vault trips follow no fixed rule, so else as the template says);
             # a unit placed at the start of the day leads like the route's own first train from that spot; a new
@@ -397,7 +445,8 @@ class Generator:
             elif p.via_vault:
                 wanted = first_side  # the route's own day doesn't say: lead as a new unit from the vault would
             elif p.follows is not None and p.follows.last_side is not None:
-                wanted = other_side(p.follows.last_side)
+                last = p.follows.last_side
+                wanted = other_side(last) if self.turns_back(p.follows.template, run) else last
             elif p.spawn_at is not None:
                 wanted = self.spawn_sides.get(p.spawn_at, first_side)
             else:

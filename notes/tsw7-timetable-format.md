@@ -151,7 +151,16 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
   freight 98-99% but its multiple units only 68-78%; e.g. Bletchley Up Fast -> Down Fast swaps 80/84, To
   Northampton -> From Long Buckby keeps 54/54, Bletchley slow 350/1 8-car 30 kept / 32 swapped). Where the stock's
   record (>= 3 trips) or the pair's (>= 10) is >= 90% one way we follow it; otherwise the unit leads as the
-  template says, exactly like a new unit from the vault. Turnrounds on the route always swap ends.
+  template says, exactly like a new unit from the vault.
+- Leading end after a turnround at a station: the unit reverses (the other end leads) unless it leaves by the
+  station's far end, as 5F30 -> 1F30 does at Birmingham New Street (in from Coventry, out towards Galton Bridge,
+  no swap in Dovetail's day). We used to swap every time. A station's ends are learned from Dovetail's own
+  turnrounds: each one puts the place the unit came from (previous station or portal) and the place it heads for
+  at the same end (it swapped) or opposite ends (it kept). Chaining these places every neighbour at one end, which
+  answers pairs Dovetail never runs. It fits 876 of the 877 turnrounds whose neighbours are known and predicts 87
+  of 90 held-out pairs (the misses all come from one odd depot move at New Street). It answers every turnround in
+  our six timetables: 19 / 20 carry on in Birmingham - Crewe typical / busy, 5 / 6 in Cardiff, none on
+  Crewe - MK. Where it can't tell (no earlier marker, or a move that goes nowhere) the unit reverses.
 - Portals are not always named "Portal - ...": Birmingham - Crewe has "Trent Valley Up Fast", "To/From
   Lichfield", "Bilbrook 1/2", "Up/Down Heath Town Portal", "Down/Up Grand Jct (Bushbury)", "Langley Green 1/2",
   and both routes treat "Alsager" as a portal. `runs.vault_markers` finds them from the data: the last stop of
