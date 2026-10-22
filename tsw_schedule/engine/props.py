@@ -29,6 +29,16 @@ class FName:
     def __str__(self):
         return self.text if self.number == 0 else f"{self.text}_{self.number - 1}"
 
+    @classmethod
+    def parse(cls, text):
+        """The FName the engine makes from a string: a numeric suffix ("WMR_350", "1F30_1") is stored as the base
+        name plus number + 1, never as one literal name. A literal "WMR_350" is a different name to the engine: our
+        units' layer then matched no layer, and the menu offered none of their trains."""
+        head, sep, tail = text.rpartition("_")
+        if sep and head and tail.isdigit() and len(tail) <= 9 and (tail == "0" or not tail.startswith("0")):
+            return cls(head, int(tail) + 1)
+        return cls(text, 0)
+
 
 NONE = FName("None")
 

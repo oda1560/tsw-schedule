@@ -15,6 +15,7 @@ import sys
 
 
 from .package import fstring_bytes, name_hashes
+from .props import FName
 
 REGISTRY_GUID = bytes.fromhex("e79e7f713a49b0e93291b3880781381b")
 
@@ -82,11 +83,8 @@ class Registry:
         names, index = [], {}
 
         def fname(text):
-            # Like FName("Foo_3"): a numeric suffix is stored as the number + 1 next to the base name "Foo".
-            base, number = text, 0
-            head, sep, tail = text.rpartition("_")
-            if sep and head and tail.isdigit() and (tail == "0" or not tail.startswith("0")):
-                base, number = head, int(tail) + 1
+            name = FName.parse(text)
+            base, number = name.text, name.number
             if base not in index:
                 index[base] = len(names)
                 names.append(base)

@@ -8,7 +8,7 @@ hundreds of MB, so nothing here builds Python objects per track point.
 import struct
 
 from .package import EditablePackage
-from .props import timespan_value_offsets
+from .props import FName, timespan_value_offsets
 
 
 def _fname(data, pos, names):
@@ -105,7 +105,8 @@ def write_track(source, recordings, out_path, map_tag_source=None):
     source.recording())]. No junction recording is kept (it belongs to the original day). `map_tag_source` gives a
     ServiceDataTracks tag to copy when the source has none (e.g. the master track)."""
     pkg = EditablePackage.load(source.path)
-    pkg.add_names([name for name, _ in recordings] + ["None"])
+    keys = {name: FName.parse(name) for name, _ in recordings}  # stored as the engine stores the service's name
+    pkg.add_names([k.text for k in keys.values()] + ["None"])
     index = pkg._name_index()
     data = source.data
     body = bytearray()
@@ -115,7 +116,7 @@ def write_track(source, recordings, out_path, map_tag_source=None):
     if recordings:
         value = bytearray(struct.pack("<ii", 0, len(recordings)))
         for name, rec in recordings:
-            value += struct.pack("<ii", index[name], 0) + rec
+            value += struct.pack("<ii", index[keys[name].text], keys[name].number) + rec
         if "ServiceDataTracks" in source.props:
             tag_start, value_start, _ = source.props["ServiceDataTracks"]
             tag = bytearray(data[tag_start:value_start])

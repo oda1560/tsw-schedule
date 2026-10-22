@@ -18,6 +18,10 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
 - Properties at their default value are not written; the class/struct definitions list every field.
 - Times are `FTimespan` (ticks of 100 ns) = seconds since midnight. Units (`SpeedQuantity`, `DistanceQuantity`)
   are one float in SI units.
+- An FName is (name-map index, number), and the engine always splits a trailing `_<digits>` (no leading zero) off
+  into the number: "WMR_350" is ("WMR", 351), "5F30_1" is ("5F30", 2). Cooked data is always stored that way.
+  A name written as the literal ("WMR_350", 0) is a different name to the engine, so it matches nothing, though it
+  prints the same. Build names from text with `FName.parse`.
 
 ## RouteTimetableDefinition
 - `Services[]` (`RouteTimetableServiceDefinition`), `Formations[]` (`RouteTimetableFormationDefinition`)
@@ -119,10 +123,16 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
   that have no fitting position.
 - Layer `RequiredDLC` holds plugin names (e.g. `CCC_TFW_Class150`, `AABS_Class350_2`), and Dovetail uses it to
   bring in trains from other packs (Birmingham - Crewe's TFW layer lists the Cardiff 150/153; Crewe - MK's WMR-350
-  layer lists the Birmingham pack's 350/2 and 350/3). With every layer's list cleared, our Birmingham - Crewe
-  timetables offered only the 390, 170 and 66 in the menu: the route-pack 350 and the Cardiff pack's 150 were not
-  listed (Dovetail's own timetable still offered the 350). Each kept layer now lists the plugins of the stock our
-  trains in it use (all installed, since the planner only picks owned stock).
+  layer lists the Birmingham pack's 350/2 and 350/3). Each kept layer lists the plugins of the stock our trains in
+  it use (all installed, since the planner only picks owned stock).
+- Our Birmingham - Crewe timetables offered only the 390, 170/5 and 66 in the menu's train list (no 350, TfW
+  150/153, WMR 170 or XC 170/6). The cause was names: we wrote service names, formation names, `LayerName`,
+  `SpawnedByServiceName`, `RequiredDLC` entries and data-track keys as literal FNames. Those that must match a
+  name stored properly (a unit's `LayerName` against the layer list kept from Dovetail's data, `RequiredDLC`
+  against plugin names) matched nothing, so every unit in a layer whose name ends in digits (WMR_350, LNR_350,
+  WMT_170, XC_170, ...) was left out. Units in layers named without digits (AWC, XC_Voyager) were offered. Found by menu tests that moved
+  Dovetail's own trains into our timetable one change at a time (2026-10-21). Packaging, layers, dependencies,
+  RequiredDLC, GUIDs, times and texts were ruled out on the way.
 - New vault units copy SpawnLocation / InitialFormationRange / SpawnFacing from the route's own vault formation
   for that entry (the template's own starting formation if it has one, else one whose train enters the same way,
   preferring an all-zero ribbon = no track position). Copying the first vault formation for every unit gave
@@ -148,7 +158,7 @@ Found 2026-10-19 by reading the game's own files (TSW7, Unreal Engine 4.26.1) an
   services whose end formation is bSpawnInVault, and the first stop of services whose start formation is.
 - Every vehicle gets a new GUID registered in CompiledRVMap (a unit keeps its ids through its chain).
 - Recorded runs stay raw bytes (`engine/tracks.py`): each layer's data track is copied (same name table) with
-  only the new services' recordings, Times patched in place. Layers are kept (RequiredDLC cleared), so they can
+  only the new services' recordings, Times patched in place. Layers are kept, so they can
   still be toggled in the menu; the master data track is an empty copy.
 - Crewe - Milton Keynes typical weekday: 64 patterns -> 1,177 trains, 359 MB mod, built in ~50 s.
 - Birmingham - Crewe (`GJL_Gameplay/Timetable/GJR_Weekday_TT`, Dovetail's "2019 Timetable", 2,100 services,

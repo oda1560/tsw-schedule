@@ -144,7 +144,7 @@ def set_enum(struct, name, enum_type, value):
     if p is None:
         p = Prop(FName(name), FName("EnumProperty"), enum_name=FName(enum_type))
         struct.props.append(p)
-    p.value = FName(value)
+    p.value = FName.parse(value)
 
 
 def suffix_of(service_name, headcode):
@@ -409,7 +409,7 @@ class Generator:
             for i, (s, name) in enumerate(zip(run.services, new_names)):
                 svc = copy.deepcopy(s)
                 shift_times(svc, delta)
-                set_prop(svc, "Name", FName(name), "NameProperty")
+                set_prop(svc, "Name", FName.parse(name), "NameProperty")
                 side = leading_side(s)
                 if flip:
                     side = other_side(side)
@@ -417,9 +417,9 @@ class Generator:
                     if svc.get("EOTDSide") is not None:
                         set_enum(svc, "EOTDSide", "ESide", other_side(str(svc["EOTDSide"])))
                 p.last_side = side
-                set_prop(svc, "FormationName", FName(previous_end), "NameProperty")
+                set_prop(svc, "FormationName", FName.parse(previous_end), "NameProperty")
                 end_name = f"{name}_End"
-                set_prop(svc, "EndOfServiceFormationName", FName(end_name), "NameProperty")
+                set_prop(svc, "EndOfServiceFormationName", FName.parse(end_name), "NameProperty")
                 if svc.get("FriendlyName") is not None:
                     old = text_source(svc["FriendlyName"])
                     if p.friendly_name and svc.get("bIsPlayerDrivable", False):
@@ -448,8 +448,8 @@ class Generator:
         donor = self.donors[p.stock]
         f = copy.deepcopy(donor)
         run = p.template
-        set_prop(f, "Name", FName(name), "NameProperty")
-        set_prop(f, "LayerName", FName(run.layer), "NameProperty")
+        set_prop(f, "Name", FName.parse(name), "NameProperty")
+        set_prop(f, "LayerName", FName.parse(run.layer), "NameProperty")
         f.prop("RailVehicleInfo").value.items = p.vehicles
         if run.start_kind == "portal":
             set_prop(f, "bSpawnInVault", True, "BoolProperty")
@@ -471,8 +471,8 @@ class Generator:
     def end_formation(self, template_service, service_name, name, p):
         template = self.tt.formations[str(template_service["EndOfServiceFormationName"])]
         f = copy.deepcopy(template)
-        set_prop(f, "Name", FName(name), "NameProperty")
-        set_prop(f, "SpawnedByServiceName", FName(service_name), "NameProperty")
+        set_prop(f, "Name", FName.parse(name), "NameProperty")
+        set_prop(f, "SpawnedByServiceName", FName.parse(service_name), "NameProperty")
         f.prop("RailVehicleInfo").value.items = copy.deepcopy(p.vehicles)
         return f
 
@@ -521,10 +521,10 @@ def write_timetable(tt, plans, generator, master_track, out_dir, track_ref, titl
         out = os.path.join(out_dir, f"{original.rsplit('/', 1)[1]}.uasset")
         write_track(lt, recordings, out)
         written.append((original, out))
-        layer_struct.prop("DataTrack").value = SoftObject(FName(track_ref(original)), Str(""))
+        layer_struct.prop("DataTrack").value = SoftObject(FName.parse(track_ref(original)), Str(""))
         required = layer_struct.prop("RequiredDLC")
         if required is not None:
-            required.value.items = [FName(plugin) for plugin in sorted(layer_plugins.get(layer, ()))]
+            required.value.items = [FName.parse(plugin) for plugin in sorted(layer_plugins.get(layer, ()))]
     props.prop("Layers").value.items = kept
 
     # Master data track: an empty copy (its junction recording belongs to the original day).
@@ -533,7 +533,7 @@ def write_timetable(tt, plans, generator, master_track, out_dir, track_ref, titl
     out = os.path.join(out_dir, f"{original.rsplit('/', 1)[1]}.uasset")
     write_track(master, [], out)
     written.append((original, out))
-    set_prop(props, "MasterDataTrack", SoftObject(FName(track_ref(original)), Str("")), "SoftObjectProperty")
+    set_prop(props, "MasterDataTrack", SoftObject(FName.parse(track_ref(original)), Str("")), "SoftObjectProperty")
 
     pkg = tt.package
     pkg.add_names(names_used(tt.export))
